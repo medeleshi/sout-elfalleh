@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+
+<html class="light" dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Be+Vietnam+Pro:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-low": "#f5f3ee",
+                        "error": "#ba1a1a",
+                        "surface": "#fbf9f4",
+                        "on-primary-container": "#9dd090",
+                        "surface-tint": "#3b6934",
+                        "on-secondary-fixed": "#131f00",
+                        "tertiary-container": "#843b00",
+                        "primary-fixed": "#bcf0ae",
+                        "primary": "#154212",
+                        "on-error-container": "#93000a",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-surface": "#30312e",
+                        "background": "#fbf9f4",
+                        "tertiary-fixed-dim": "#ffb68d",
+                        "surface-container-highest": "#e4e2dd",
+                        "surface-container": "#f0eee9",
+                        "on-secondary-container": "#4e6e00",
+                        "on-tertiary-fixed-variant": "#763400",
+                        "on-background": "#1b1c19",
+                        "outline-variant": "#c2c9bb",
+                        "inverse-on-surface": "#f2f1ec",
+                        "on-tertiary-container": "#ffb184",
+                        "on-primary": "#ffffff",
+                        "surface-dim": "#dbdad5",
+                        "primary-container": "#2d5a27",
+                        "inverse-primary": "#a1d494",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#23501e",
+                        "surface-variant": "#e4e2dd",
+                        "secondary-fixed": "#c8f17a",
+                        "surface-container-high": "#eae8e3",
+                        "surface-bright": "#fbf9f4",
+                        "on-secondary-fixed-variant": "#364e00",
+                        "secondary": "#496800",
+                        "secondary-container": "#c8f17a",
+                        "tertiary": "#612900",
+                        "on-primary-fixed": "#002201",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed": "#321200",
+                        "secondary-fixed-dim": "#add461",
+                        "primary-fixed-dim": "#a1d494",
+                        "on-tertiary": "#ffffff",
+                        "outline": "#72796e",
+                        "on-surface": "#1b1c19",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#ffdbc9",
+                        "on-surface-variant": "#42493e"
+                    },
+                    fontFamily: {
+                        "headline": ["Noto Serif"],
+                        "body": ["Be Vietnam Pro"],
+                        "label": ["Be Vietnam Pro"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #fbf9f4;
+        }
+        .serif-font {
+            font-family: 'Noto Serif', serif;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col">
+<!-- Top Navigation Anchor -->
+<header class="bg-[#fbf9f4] dark:bg-stone-950 transition-colors fixed top-0 w-full z-50">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-7xl mx-auto">
+<div class="text-2xl font-bold text-[#154212] dark:text-[#c8f17a] serif-font">
+                Digital Harvest
+            </div>
+<div class="flex items-center gap-4">
+<button class="text-[#42493e] hover:bg-[#f0eee9] p-2 rounded-full transition-all">
+<span class="material-symbols-outlined" data-icon="language">language</span>
+</button>
+<button class="text-[#42493e] hover:bg-[#f0eee9] p-2 rounded-full transition-all">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex items-center justify-center px-6 pt-24 pb-32">
+<div class="max-w-xl w-full">
+<!-- Identity Header Section -->
+<div class="text-center mb-10">
+<h1 class="text-4xl md:text-5xl font-bold serif-font text-primary mb-4 leading-tight">
+                    لنبدأ بالأساسيات
+                </h1>
+<p class="text-on-surface-variant text-lg">
+                    ساعدنا في تخصيص تجربتك
+                </p>
+</div>
+<!-- Form Card: Asymmetric Shadowless Layout -->
+<div class="bg-surface-container-lowest rounded-xl p-8 md:p-12">
+<form class="space-y-8">
+<!-- Full Name Input -->
+<div class="space-y-2">
+<label class="block text-sm font-medium text-on-surface-variant px-1" for="full_name">الاسم الكامل</label>
+<input class="w-full bg-surface-container-high border-none rounded-xl py-4 px-6 focus:ring-2 focus:ring-primary/40 text-on-surface placeholder:text-outline transition-all" id="full_name" placeholder="أدخل اسمك هنا..." type="text"/>
+</div>
+<!-- Account Type Selection: Custom Modern Grid -->
+<div class="space-y-4">
+<label class="block text-sm font-medium text-on-surface-variant px-1">نوع الحساب</label>
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+<label class="cursor-pointer group">
+<input class="hidden peer" name="role" type="radio" value="farmer"/>
+<div class="flex flex-col items-center justify-center p-4 rounded-xl bg-surface-container text-on-surface-variant peer-checked:bg-secondary-container peer-checked:text-on-secondary-container group-hover:bg-surface-container-highest transition-all">
+<span class="material-symbols-outlined mb-2" data-icon="agriculture">agriculture</span>
+<span class="text-sm font-bold">فلاح</span>
+</div>
+</label>
+<label class="cursor-pointer group">
+<input class="hidden peer" name="role" type="radio" value="merchant"/>
+<div class="flex flex-col items-center justify-center p-4 rounded-xl bg-surface-container text-on-surface-variant peer-checked:bg-secondary-container peer-checked:text-on-secondary-container group-hover:bg-surface-container-highest transition-all">
+<span class="material-symbols-outlined mb-2" data-icon="storefront">storefront</span>
+<span class="text-sm font-bold">تاجر</span>
+</div>
+</label>
+<label class="cursor-pointer group">
+<input class="hidden peer" name="role" type="radio" value="buyer"/>
+<div class="flex flex-col items-center justify-center p-4 rounded-xl bg-surface-container text-on-surface-variant peer-checked:bg-secondary-container peer-checked:text-on-secondary-container group-hover:bg-surface-container-highest transition-all">
+<span class="material-symbols-outlined mb-2" data-icon="shopping_basket">shopping_basket</span>
+<span class="text-sm font-bold">مشتري</span>
+</div>
+</label>
+<label class="cursor-pointer group">
+<input class="hidden peer" name="role" type="radio" value="provider"/>
+<div class="flex flex-col items-center justify-center p-4 rounded-xl bg-surface-container text-on-surface-variant peer-checked:bg-secondary-container peer-checked:text-on-secondary-container group-hover:bg-surface-container-highest transition-all">
+<span class="material-symbols-outlined mb-2" data-icon="local_shipping">local_shipping</span>
+<span class="text-sm font-bold">مزوّد</span>
+</div>
+</label>
+<label class="cursor-pointer group">
+<input class="hidden peer" name="role" type="radio" value="cooperative"/>
+<div class="flex flex-col items-center justify-center p-4 rounded-xl bg-surface-container text-on-surface-variant peer-checked:bg-secondary-container peer-checked:text-on-secondary-container group-hover:bg-surface-container-highest transition-all">
+<span class="material-symbols-outlined mb-2" data-icon="groups">groups</span>
+<span class="text-sm font-bold">تعاونية</span>
+</div>
+</label>
+</div>
+</div>
+<!-- Helpful Note -->
+<div class="flex items-start gap-3 p-4 rounded-xl bg-surface-container-low text-on-surface-variant border-r-4 border-primary/20">
+<span class="material-symbols-outlined text-primary/60" data-icon="info">info</span>
+<p class="text-sm leading-relaxed">
+                            لا تقلق، يمكنك تغيير هذه المعلومات لاحقاً من خلال الإعدادات.
+                        </p>
+</div>
+</form>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Shell: Progress & Actions -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-6 pb-8 pt-4 bg-[#fbf9f4]/80 backdrop-blur-md shadow-[0px_-12px_32px_rgba(27,28,25,0.04)] rounded-t-[1.5rem]">
+<!-- Back Button (Inactive) -->
+<button class="flex flex-col items-center justify-center text-[#42493e] px-6 py-2 hover:text-[#154212] transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_forward</span>
+<span class="font-be-vietnam-pro text-xs font-medium uppercase tracking-wider mt-1">Back</span>
+</button>
+<!-- Step Progress Indicator -->
+<div class="flex flex-col items-center justify-center px-6 py-2">
+<div class="flex gap-1 mb-1">
+<div class="w-8 h-1.5 rounded-full bg-primary"></div>
+<div class="w-8 h-1.5 rounded-full bg-outline-variant/30"></div>
+<div class="w-8 h-1.5 rounded-full bg-outline-variant/30"></div>
+<div class="w-8 h-1.5 rounded-full bg-outline-variant/30"></div>
+<div class="w-8 h-1.5 rounded-full bg-outline-variant/30"></div>
+</div>
+<span class="font-be-vietnam-pro text-xs font-medium uppercase tracking-wider text-primary">الخطوة 1 من 5</span>
+</div>
+<!-- Next Button (Active Style from JSON) -->
+<button class="flex flex-col items-center justify-center bg-[#2d5a27] text-white rounded-[1.5rem] px-8 py-2 active:scale-95 transition-transform shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined" data-icon="arrow_forward">arrow_back</span>
+<span class="font-be-vietnam-pro text-xs font-medium uppercase tracking-wider mt-1">Next</span>
+</button>
+</nav>
+<!-- Background Decorative Elements -->
+<div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none opacity-40">
+<div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/5 blur-[100px]"></div>
+<div class="absolute bottom-[5%] right-[-5%] w-[30%] h-[30%] rounded-full bg-tertiary-container/5 blur-[80px]"></div>
+</div>
+</body></html>

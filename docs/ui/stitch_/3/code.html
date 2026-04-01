@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Digital Harvest - Step 3: Field of Work</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Be+Vietnam+Pro:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+        h1, h2, h3 {
+            font-family: 'Noto Serif', serif;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-low": "#f5f3ee",
+                        "error": "#ba1a1a",
+                        "surface": "#fbf9f4",
+                        "on-primary-container": "#9dd090",
+                        "surface-tint": "#3b6934",
+                        "on-secondary-fixed": "#131f00",
+                        "tertiary-container": "#843b00",
+                        "primary-fixed": "#bcf0ae",
+                        "primary": "#154212",
+                        "on-error-container": "#93000a",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-surface": "#30312e",
+                        "background": "#fbf9f4",
+                        "tertiary-fixed-dim": "#ffb68d",
+                        "surface-container-highest": "#e4e2dd",
+                        "surface-container": "#f0eee9",
+                        "on-secondary-container": "#4e6e00",
+                        "on-tertiary-fixed-variant": "#763400",
+                        "on-background": "#1b1c19",
+                        "outline-variant": "#c2c9bb",
+                        "inverse-on-surface": "#f2f1ec",
+                        "on-tertiary-container": "#ffb184",
+                        "on-primary": "#ffffff",
+                        "surface-dim": "#dbdad5",
+                        "primary-container": "#2d5a27",
+                        "inverse-primary": "#a1d494",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#23501e",
+                        "surface-variant": "#e4e2dd",
+                        "secondary-fixed": "#c8f17a",
+                        "surface-container-high": "#eae8e3",
+                        "surface-bright": "#fbf9f4",
+                        "on-secondary-fixed-variant": "#364e00",
+                        "secondary": "#496800",
+                        "secondary-container": "#c8f17a",
+                        "tertiary": "#612900",
+                        "on-primary-fixed": "#002201",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed": "#321200",
+                        "secondary-fixed-dim": "#add461",
+                        "primary-fixed-dim": "#a1d494",
+                        "on-tertiary": "#ffffff",
+                        "outline": "#72796e",
+                        "on-surface": "#1b1c19",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#ffdbc9",
+                        "on-surface-variant": "#42493e"
+                    },
+                    fontFamily: {
+                        "headline": ["Noto Serif"],
+                        "body": ["Be Vietnam Pro"],
+                        "label": ["Be Vietnam Pro"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col">
+<!-- Top Navigation Bar -->
+<nav class="bg-[#fbf9f4] dark:bg-stone-950 flex justify-between items-center w-full px-8 py-4 max-w-7xl mx-auto z-50">
+<div class="text-2xl font-bold text-[#154212] dark:text-[#c8f17a] font-headline">
+            Digital Harvest
+        </div>
+<div class="flex items-center gap-6">
+<button class="text-[#42493e] dark:text-[#c2c9bb] hover:bg-[#f0eee9] dark:hover:bg-stone-800 transition-all p-2 rounded-full active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="language">language</span>
+</button>
+<button class="text-[#42493e] dark:text-[#c2c9bb] hover:bg-[#f0eee9] dark:hover:bg-stone-800 transition-all p-2 rounded-full active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-grow flex flex-col items-center justify-start px-6 pt-12 pb-32 max-w-4xl mx-auto w-full">
+<!-- Header Section -->
+<header class="text-center mb-12 space-y-4">
+<h1 class="text-4xl md:text-5xl font-headline font-bold text-primary tracking-tight">أخبرنا عن عملك</h1>
+<p class="text-on-surface-variant text-lg max-w-lg mx-auto font-body">
+                هذا يساعدنا في إظهار أفضل العروض والطلبات المناسبة لنشاطك الفلاحي.
+            </p>
+</header>
+<!-- Bento Grid Selection -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+<!-- Crops Card (Large) -->
+<div class="md:col-span-2 group cursor-pointer bg-surface-container-lowest rounded-xl p-8 transition-all duration-300 hover:bg-primary hover:text-white shadow-[0px_12px_32px_rgba(27,28,25,0.04)] relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+<img alt="" class="w-full h-full object-cover" data-alt="lush green rows of growing vegetable crops in a fertile field during daytime with soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjGs4fqSuFyeFiBOlUbShLmmlhrGGwClfV6n6kFPG0fO5I6KA4WgLS1lS70b9lLBb3OQ16IXTqAPYqQeh0xyl_gjHObrOZboWpG24r4GUOTIcyvW4aljwKOqioDZCyDFW7AbA6ioriLYASjH31stA0wlEpc8jhuaBhGzA6k5fsvbMT3KmbQhw6ZPaYtutRhq6OTZALNAWbGuuhVFwHGFnrOv_GijkXpSXtg34Yj8KD_4gko0n62S-hsKfAUOgKDWp5lIrq2ed0AzJ-"/>
+</div>
+<div class="relative z-10 flex flex-col h-full justify-between gap-8">
+<span class="material-symbols-outlined text-5xl text-primary group-hover:text-primary-fixed" data-icon="psychology_alt" style="font-variation-settings: 'FILL' 0;">potted_plant</span>
+<div>
+<h3 class="text-2xl font-headline font-bold mb-2">المحاصيل الزراعية</h3>
+<p class="text-on-surface-variant group-hover:text-primary-fixed-dim text-sm">الحبوب، الخضروات، الفواكه، والأشجار المثمرة.</p>
+</div>
+</div>
+<div class="absolute bottom-6 left-6 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+<!-- Livestock Card -->
+<div class="group cursor-pointer bg-surface-container rounded-xl p-8 transition-all duration-300 hover:bg-tertiary-container hover:text-white shadow-[0px_12px_32px_rgba(27,28,25,0.04)] flex flex-col justify-between gap-8">
+<span class="material-symbols-outlined text-5xl text-tertiary group-hover:text-tertiary-fixed" data-icon="pets" style="font-variation-settings: 'FILL' 0;">pets</span>
+<div>
+<h3 class="text-xl font-headline font-bold mb-2">تربية المواشي</h3>
+<p class="text-on-surface-variant group-hover:text-tertiary-fixed-dim text-sm">الأبقار، الأغنام، الدواجن ومنتجاتها.</p>
+</div>
+</div>
+<!-- Equipment Card -->
+<div class="group cursor-pointer bg-surface-container-high rounded-xl p-8 transition-all duration-300 hover:bg-secondary-container hover:text-on-secondary-container shadow-[0px_12px_32px_rgba(27,28,25,0.04)] flex flex-col justify-between gap-8">
+<span class="material-symbols-outlined text-5xl text-secondary group-hover:text-on-secondary-fixed" data-icon="agriculture" style="font-variation-settings: 'FILL' 0;">agriculture</span>
+<div>
+<h3 class="text-xl font-headline font-bold mb-2">المعدات والآلات</h3>
+<p class="text-on-surface-variant group-hover:text-on-secondary-fixed-variant text-sm">الجرارات، أدوات الحراثة، وأنظمة الري.</p>
+</div>
+</div>
+<!-- Services/Logistics Card (Medium) -->
+<div class="md:col-span-2 group cursor-pointer bg-surface-container-lowest rounded-xl p-8 transition-all duration-300 border-2 border-transparent hover:border-primary-container shadow-[0px_12px_32px_rgba(27,28,25,0.04)] flex items-center gap-8">
+<div class="bg-surface-container-low p-6 rounded-full group-hover:bg-primary-fixed transition-colors">
+<span class="material-symbols-outlined text-4xl text-primary" data-icon="local_shipping" style="font-variation-settings: 'FILL' 0;">local_shipping</span>
+</div>
+<div class="flex-grow">
+<h3 class="text-2xl font-headline font-bold mb-1">الخدمات واللوجستيك</h3>
+<p class="text-on-surface-variant text-sm">النقل، التخزين المبرد، والاستشارات الفلاحية.</p>
+</div>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-transform group-hover:translate-x-[-8px]" data-icon="chevron_left">chevron_left</span>
+</div>
+</div>
+<!-- Harvest Chips for sub-selection -->
+<div class="mt-12 flex flex-wrap justify-center gap-3">
+<span class="bg-tertiary-container text-on-tertiary-container px-6 py-2 rounded-full text-sm font-medium transition-transform hover:scale-105 cursor-pointer">عضوي</span>
+<span class="bg-surface-container-highest text-on-surface-variant px-6 py-2 rounded-full text-sm font-medium transition-transform hover:scale-105 cursor-pointer">بالجملة</span>
+<span class="bg-surface-container-highest text-on-surface-variant px-6 py-2 rounded-full text-sm font-medium transition-transform hover:scale-105 cursor-pointer">محلي</span>
+<span class="bg-surface-container-highest text-on-surface-variant px-6 py-2 rounded-full text-sm font-medium transition-transform hover:scale-105 cursor-pointer">تصدير</span>
+</div>
+</main>
+<!-- Bottom Navigation Bar / Progress Shell -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-6 pb-8 pt-4 bg-[#fbf9f4]/80 dark:bg-stone-950/80 backdrop-blur-md shadow-[0px_-12px_32px_rgba(27,28,25,0.04)] rounded-t-[1.5rem]">
+<!-- Back Action -->
+<button class="flex flex-col items-center justify-center text-[#42493e] dark:text-[#c2c9bb] px-6 py-2 hover:text-[#154212] dark:hover:text-[#c8f17a] transition-colors active:scale-98">
+<span class="material-symbols-outlined text-2xl" data-icon="arrow_forward">arrow_forward</span>
+<span class="font-be-vietnam-pro text-xs font-medium uppercase tracking-wider mt-1">Back</span>
+</button>
+<!-- Step Progress Indicator -->
+<div class="flex flex-col items-center justify-center bg-[#2d5a27] text-white rounded-[1.5rem] px-8 py-3 shadow-lg">
+<div class="flex items-center gap-2 mb-1">
+<div class="w-1.5 h-1.5 rounded-full bg-white/40"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-white/40"></div>
+<div class="w-4 h-1.5 rounded-full bg-white"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-white/40"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-white/40"></div>
+</div>
+<span class="font-be-vietnam-pro text-xs font-bold uppercase tracking-widest">Step Progress</span>
+</div>
+<!-- Next Action -->
+<button class="flex flex-col items-center justify-center text-[#42493e] dark:text-[#c2c9bb] px-6 py-2 hover:text-[#154212] dark:hover:text-[#c8f17a] transition-colors active:scale-98">
+<span class="material-symbols-outlined text-2xl" data-icon="arrow_back">arrow_back</span>
+<span class="font-be-vietnam-pro text-xs font-medium uppercase tracking-wider mt-1">Next</span>
+</button>
+</nav>
+<!-- Decorative Element -->
+<div class="fixed top-0 right-0 -z-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl -mr-48 -mt-48"></div>
+<div class="fixed bottom-0 left-0 -z-10 w-64 h-64 bg-tertiary/5 rounded-full blur-3xl -ml-32 -mb-32"></div>
+</body></html>
