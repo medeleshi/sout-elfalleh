@@ -31,7 +31,13 @@ export type PurchaseRequestItem = BaseFeedItem & {
   budget: number | null;
 };
 
-export type FeedItem = ListingItem | PurchaseRequestItem;
+export type PostItem = BaseFeedItem & {
+  type: 'post';
+  content: string;
+  post_type: 'question' | 'discussion';
+};
+
+export type FeedItem = ListingItem | PurchaseRequestItem | PostItem;
 
 export async function getFeedItems(limit = 20): Promise<FeedItem[]> {
   const supabase = await createClient();
@@ -69,10 +75,40 @@ export async function getFeedItems(limit = 20): Promise<FeedItem[]> {
     console.error('Error fetching purchase requests for feed:', requestsError);
   }
 
-  // 3. Combine and Sort
+  // 3. Fetch Posts
+  const { data: posts, error: postsError } = await (supabase
+    .from('posts')
+    .select(`
+      *,
+      profiles:author_id(full_name, avatar_url)
+    `)
+    .order('created_at', { ascending: false })
+    .limit(limit)) as { data: any[] | null; error: any };
+
+  if (postsError) {
+    console.error('Error fetching posts for feed:', postsError);
+  }
+
+  // 4. Combine and Sort
   const combined: FeedItem[] = [
-    ...(listings?.map(l => ({ ...l, type: 'listing' as const })) || []),
-    ...(requests?.map(r => ({ ...r, type: 'purchase_request' as const })) || [])
+    ...(listings?.map(l => ({ 
+      ...l, 
+      type: 'listing' as const,
+      unit: l.quantity_unit || l.unit 
+    })) || []),
+    ...(requests?.map(r => ({ 
+      ...r, 
+      type: 'purchase_request' as const,
+      unit: r.unit || r.quantity_unit 
+    })) || []),
+    ...(posts?.map(p => ({ 
+      ...p, 
+      type: 'post' as const, 
+      post_type: p.type as 'question' | 'discussion',
+      governorate_id: '', // Posts don't have governorate in schema yet, adding placeholder
+      governorates: null,
+      status: 'active' as const
+    })) || [])
   ];
 
   // Sort by created_at DESC

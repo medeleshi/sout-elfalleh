@@ -23,7 +23,7 @@ export async function getCurrentProfile(): Promise<{
   const supabase = await createClient();
   const { data: profile, error } = await supabase
     .from('profiles')
-    .select('*, governorates(name_ar)')
+    .select('*, governorates(name_ar), activity_types(name_ar)')
     .eq('id', user.id)
     .maybeSingle();
 
@@ -35,7 +35,8 @@ export async function getCurrentProfile(): Promise<{
     user,
     profile: profile ? {
       ...(profile as any),
-      governorate_name_ar: (profile as any).governorates?.name_ar || null
+      governorate_name_ar: (profile as any).governorates?.name_ar || null,
+      activity_type_name_ar: (profile as any).activity_types?.name_ar || null
     } : null,
   };
 }

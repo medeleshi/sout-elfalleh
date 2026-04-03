@@ -4,17 +4,17 @@ import {
   Package, 
   ShoppingBag, 
   ChevronLeft,
-  LayoutDashboard
+  Home
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { ROUTES } from "@/lib/constants/routes";
 
-interface DashboardStatsProps {
+interface HomeStatsProps {
   profile: any;
 }
 
-export default async function DashboardStats({ profile }: DashboardStatsProps) {
+export default async function HomeStats({ profile }: HomeStatsProps) {
   const supabase = await createClient();
 
   // Fetch counts for the current user
@@ -69,8 +69,8 @@ export default async function DashboardStats({ profile }: DashboardStatsProps) {
         ))}
         {/* Minimalist divider */}
         <div className="w-[1px] h-8 bg-outline-variant/20 mx-2" />
-        <Link href={ROUTES.DASHBOARD} className="p-2 rounded-lg bg-surface-container-high text-on-surface-variant">
-          <LayoutDashboard className="w-4 h-4" />
+        <Link href={ROUTES.HOME} className="p-2 rounded-lg bg-surface-container-high text-on-surface-variant">
+          <Home className="w-4 h-4" />
         </Link>
       </div>
 
@@ -102,11 +102,11 @@ export default async function DashboardStats({ profile }: DashboardStatsProps) {
             </Link>
           ))}
           <Link 
-            href={ROUTES.DASHBOARD} 
+            href={ROUTES.HOME} 
             className="flex items-center justify-center gap-2 py-3 rounded-xl bg-surface-container-highest text-on-surface-variant font-bold text-[11px] hover:bg-primary hover:text-on-primary transition-all"
           >
-            <LayoutDashboard className="w-3.5 h-3.5" />
-            <span>لوحة التحكم الكاملة</span>
+            <Home className="w-3.5 h-3.5" />
+            <span>العودة للرئيسية</span>
           </Link>
         </div>
       </div>

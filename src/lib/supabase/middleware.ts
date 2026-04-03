@@ -41,11 +41,11 @@ export async function updateSession(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
   // Define public vs auth routes
-  const isPublicRoute = 
-    path === ROUTES.HOME || 
-    path.startsWith(ROUTES.LOGIN) || 
-    path.startsWith(ROUTES.SIGNUP) || 
-    path.startsWith(ROUTES.FORGOT_PASSWORD) || 
+  const isPublicRoute =
+    path === ROUTES.LANDING ||
+    path.startsWith(ROUTES.LOGIN) ||
+    path.startsWith(ROUTES.SIGNUP) ||
+    path.startsWith(ROUTES.FORGOT_PASSWORD) ||
     path.startsWith(ROUTES.AUTH_CALLBACK) ||
     path.startsWith('/privacy') ||
     path.startsWith('/terms') ||
@@ -54,7 +54,7 @@ export async function updateSession(request: NextRequest) {
   const isAuthRoute = path.startsWith(ROUTES.LOGIN) || path.startsWith(ROUTES.SIGNUP);
 
   if (!user && !isPublicRoute) {
-    // no user, potentially respond by redirecting the user to the login page
+    // Guest trying to access protected route -> Redirect to Login
     const url = request.nextUrl.clone();
     url.pathname = ROUTES.LOGIN;
     return NextResponse.redirect(url);
@@ -70,23 +70,25 @@ export async function updateSession(request: NextRequest) {
 
     const isOnboardingCompleted = profile?.is_onboarding_completed;
 
-    // if user is on an auth route (login/signup) and logged in, redirect away
+    // if user is logged in and on an auth route (login/signup), redirect away
     if (isAuthRoute) {
       const url = request.nextUrl.clone();
-      url.pathname = isOnboardingCompleted ? ROUTES.DASHBOARD : ROUTES.ONBOARDING;
+      url.pathname = isOnboardingCompleted ? ROUTES.HOME : ROUTES.ONBOARDING;
       return NextResponse.redirect(url);
     }
 
-    // handle onboarding redirect
-    if (!isOnboardingCompleted && path === ROUTES.DASHBOARD) {
+    // handle onboarding redirect: If onboarding not completed, force them to onboarding
+    // but avoid infinite loops if they are on a public route or already on onboarding
+    if (!isOnboardingCompleted && path !== ROUTES.ONBOARDING && !isPublicRoute) {
       const url = request.nextUrl.clone();
       url.pathname = ROUTES.ONBOARDING;
       return NextResponse.redirect(url);
     }
 
+    // if onboarding IS completed, don't let them go back to onboarding
     if (isOnboardingCompleted && path === ROUTES.ONBOARDING) {
       const url = request.nextUrl.clone();
-      url.pathname = ROUTES.DASHBOARD;
+      url.pathname = ROUTES.HOME;
       return NextResponse.redirect(url);
     }
   }

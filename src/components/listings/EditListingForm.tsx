@@ -1,0 +1,256 @@
+'use client';
+
+import React, { useState } from 'react';
+import { PublishingShell } from '@/components/publishing/PublishingShell';
+import { FormField } from '@/components/publishing/FormField';
+import { ImagePicker } from '@/components/publishing/ImagePicker';
+import { CATEGORIES, UNITS } from '@/lib/constants/categories';
+import { updateListingAction, updateListingStatusAction, deleteListingAction } from '@/lib/listings/actions';
+import { useRouter } from 'next/navigation';
+import { CheckCircle2, EyeOff, Trash2, AlertCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+interface EditListingFormProps {
+  listing: any;
+  governorates: { id: string; name_ar: string }[];
+}
+
+export function EditListingForm({ listing, governorates }: EditListingFormProps) {
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<'updated' | 'sold' | 'deleted' | null>(null);
+
+  // Form State
+  const [formData, setFormData] = useState({
+    title: listing.title || '',
+    categoryId: listing.category_id || '',
+    quantity: listing.quantity || '',
+    quantityUnit: listing.quantity_unit || 'kg',
+    price: listing.price || '',
+    description: listing.description || '',
+    governorateId: listing.governorate_id || '',
+    images: listing.images || [],
+  });
+
+  const handleSave = async () => {
+    setIsSubmitting(true);
+    setError(null);
+
+    const fd = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key === 'images') {
+        fd.append(key, JSON.stringify(value));
+      } else {
+        fd.append(key, value.toString());
+      }
+    });
+
+    const result = await updateListingAction(listing.id, fd);
+    if (result.success) {
+      setSuccess('updated');
+      setTimeout(() => {
+        router.push('/activity');
+        router.refresh();
+      }, 2000);
+    } else {
+      setError(result.error || 'حدث خطأ غير متوقع.');
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleStatusUpdate = async (status: 'sold' | 'hidden') => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    const result = await updateListingStatusAction(listing.id, status === 'sold' ? 'sold' : 'hidden' as any);
+    if (result.success) {
+      setSuccess(status === 'sold' ? 'sold' : 'updated');
+      setTimeout(() => {
+        router.push('/activity');
+        router.refresh();
+      }, 2000);
+    } else {
+      setError(result.error || 'حدث خطأ أثناء تحديث الحالة.');
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm('هل أنت متأكد من حذف هذا العرض؟ لا يمكن التراجع عن هذا الإجراء.')) return;
+    setIsSubmitting(true);
+    const result = await deleteListingAction(listing.id);
+    if (result.success) {
+      setSuccess('deleted');
+      setTimeout(() => {
+        router.push('/activity');
+        router.refresh();
+      }, 1500);
+    } else {
+      setError(result.error || 'حدث خطأ أثناء حذف العرض.');
+      setIsSubmitting(false);
+    }
+  };
+
+  if (success) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-8 animate-fade-in" dir="rtl">
+        <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-8 animate-bounce">
+          <CheckCircle2 className="w-12 h-12 text-primary" />
+        </div>
+        <h2 className="text-3xl font-black text-on-surface mb-4">
+          {success === 'sold' ? 'مبروك على البيع!' : 
+           success === 'deleted' ? 'تم الحذف بنجاح' : 'تم تحديث العرض بنجاح'}
+        </h2>
+        <p className="text-on-surface-variant font-medium max-w-sm mx-auto">
+          {success === 'sold' ? 'لقد تم تحديث حالة العرض ليكون "تم البيع" بنجاح. نتمنى لك صفقات ناجحة أخرى!' : 
+           'يتم الآن تحويلك إلى صفحة نشاطاتي...'}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <PublishingShell
+      title="تعديل العرض"
+      subtitle="قم بتحديث معلومات منتجك لزيادة فرص البيع"
+      type="listing"
+      isSubmitting={isSubmitting}
+      onCancel={() => router.back()}
+      primaryActionLabel="حفظ التغييرات"
+      onPrimaryAction={handleSave}
+      secondaryActions={
+        <div className="flex gap-2">
+          {listing.status === 'active' && (
+            <Button 
+              variant="outline" 
+              className="flex-1 h-14 rounded-2xl font-black text-[13px] border-primary/20 text-primary hover:bg-primary/5 transition-all"
+              onClick={() => handleStatusUpdate('sold')}
+              disabled={isSubmitting}
+            >
+              <CheckCircle2 className="w-4 h-4 ml-2" />
+              تم البيع
+            </Button>
+          )}
+          <button 
+            onClick={handleDelete}
+            className="p-4 text-on-surface-variant/40 hover:text-error hover:bg-error/5 rounded-2xl transition-all border border-outline-variant/30"
+            disabled={isSubmitting}
+          >
+            <Trash2 className="w-5 h-5" />
+          </button>
+        </div>
+      }
+    >
+      {error && (
+        <div className="bg-error/5 border border-error/20 rounded-2xl p-4 flex items-center gap-3 text-error text-sm font-black mb-6">
+          <AlertCircle className="w-5 h-5 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
+
+      {/* Product Identity */}
+      <div className="bg-white border border-outline-variant/10 rounded-[2.5rem] p-6 lg:p-10 space-y-8 shadow-sm">
+        <div className="flex items-center justify-between mb-2">
+           <div className="flex items-center gap-3">
+              <div className="w-1.5 h-8 bg-primary rounded-full transition-all" />
+              <h3 className="text-xl font-black text-on-surface italic font-serif">هوية المنتج</h3>
+           </div>
+           {listing.status === 'sold' && (
+             <div className="bg-success/5 text-success px-4 py-1.5 rounded-full text-[10px] font-black border border-success/20">تم البيع</div>
+           )}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+          <FormField 
+            label="اسم المنتج" 
+            hint="العناوين الدقيقة تساعد المشترين على العثور عليك." 
+            required
+          >
+            <input 
+              type="text" 
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              placeholder="مثال: تمور دقلة النور قبلي"
+              className="w-full h-14 bg-surface-container-low border-2 border-transparent focus:border-primary/20 rounded-2xl px-6 text-sm font-medium outline-none transition-all shadow-inner"
+            />
+          </FormField>
+
+          <FormField label="التصنيف" required>
+            <select 
+              value={formData.categoryId}
+              onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
+              className="w-full h-14 bg-surface-container-low border-2 border-transparent focus:border-primary/20 rounded-2xl px-6 text-sm font-medium outline-none transition-all shadow-inner appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22/%3E%3C/svg%3E')] bg-[length:12px_12px] bg-[position:left_24px_center] bg-no-repeat"
+            >
+              <option value="">اختر الفئة...</option>
+              {CATEGORIES.map(cat => <option key={cat.id} value={cat.id}>{cat.label}</option>)}
+            </select>
+          </FormField>
+
+          <div className="md:col-span-2 grid grid-cols-2 gap-4">
+            <FormField label="الكمية" required>
+              <input 
+                type="number" 
+                value={formData.quantity}
+                onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+                placeholder="0"
+                className="w-full h-14 bg-surface-container-low border-2 border-transparent focus:border-primary/20 rounded-2xl px-6 text-sm font-medium outline-none transition-all shadow-inner text-center"
+              />
+            </FormField>
+
+            <FormField label="الوحدة" required>
+              <select 
+                value={formData.quantityUnit}
+                onChange={(e) => setFormData({ ...formData, quantityUnit: e.target.value })}
+                className="w-full h-14 bg-surface-container-low border-2 border-transparent focus:border-primary/20 rounded-2xl px-6 text-sm font-black outline-none transition-all shadow-inner appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22/%3E%3C/svg%3E')] bg-[length:12px_12px] bg-[position:left_20px_center] bg-no-repeat text-primary/80"
+              >
+                {UNITS.map(unit => <option key={unit.id} value={unit.id}>{unit.label}</option>)}
+              </select>
+            </FormField>
+          </div>
+
+          <FormField label="السعر (TND)">
+            <div className="relative">
+              <input 
+                type="number" 
+                value={formData.price}
+                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                placeholder="0.00"
+                className="w-full h-14 bg-surface-container-low border-2 border-transparent focus:border-primary/20 rounded-2xl px-6 pl-16 text-sm font-medium outline-none transition-all shadow-inner text-left"
+              />
+              <span className="absolute left-6 top-1/2 -translate-y-1/2 text-[10px] font-black text-on-surface-variant/40 uppercase tracking-widest">TND</span>
+            </div>
+          </FormField>
+        </div>
+      </div>
+
+      {/* Description & Location */}
+      <div className="bg-white border border-outline-variant/10 rounded-[2.5rem] p-6 lg:p-10 space-y-8 shadow-sm">
+        <div className="flex items-center gap-3 mb-2">
+           <div className="w-1.5 h-8 bg-primary rounded-full transition-all" />
+           <h3 className="text-xl font-black text-on-surface italic font-serif">تفاصيل الجودة والموقع</h3>
+        </div>
+
+        <FormField label="وصف المنتج">
+          <textarea 
+            rows={5}
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            placeholder="مثال: محصول طبيعي، سقي بئر، جودة تصدير..."
+            className="w-full bg-surface-container-low border-2 border-transparent focus:border-primary/20 rounded-3xl px-6 py-4 text-sm font-medium outline-none transition-all shadow-inner resize-none"
+          />
+        </FormField>
+
+        <FormField label="الولاية" required>
+          <select 
+            value={formData.governorateId}
+            onChange={(e) => setFormData({ ...formData, governorateId: e.target.value })}
+            className="w-full h-14 bg-surface-container-low border-2 border-transparent focus:border-primary/20 rounded-2xl px-6 text-sm font-medium outline-none transition-all shadow-inner appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22/%3E%3C/svg%3E')] bg-[length:12px_12px] bg-[position:left_24px_center] bg-no-repeat"
+          >
+            <option value="">اختر الولاية...</option>
+            {governorates.map(gov => <option key={gov.id} value={gov.id}>{gov.name_ar}</option>)}
+          </select>
+        </FormField>
+      </div>
+    </PublishingShell>
+  );
+}

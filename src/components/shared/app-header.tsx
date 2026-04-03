@@ -53,7 +53,7 @@ export default function AppHeader({ profile }: AppHeaderProps) {
         
         {/* Right side: Logo & Brand */}
         <div className={`flex items-center gap-8 shrink-0 transition-opacity duration-300 ${isMobileSearchOpen ? 'opacity-0 invisible md:opacity-100 md:visible' : 'opacity-100 visible'}`}>
-          <Link href={ROUTES.DASHBOARD} className="flex items-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98]">
+          <Link href={ROUTES.HOME} className="flex items-center gap-3 transition-all hover:scale-[1.02] active:scale-[0.98]">
             <div className="w-11 h-11 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30 rotate-1 transform hover:rotate-0 transition-transform">
               <Leaf className="w-7 h-7 text-on-primary" />
             </div>

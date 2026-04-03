@@ -9,11 +9,11 @@ import { createClient } from "@/lib/supabase/server";
 import { type Tables } from "@/types/database";
 import ReminderCard from "./ReminderCard";
 
-interface DashboardRemindersProps {
+interface HomeRemindersProps {
   profile: Tables<'profiles'>;
 }
 
-export default async function DashboardReminders({ profile }: DashboardRemindersProps) {
+export default async function HomeReminders({ profile }: HomeRemindersProps) {
   const supabase = await createClient();
 
   // Logic to fetch reminder signals

@@ -7,7 +7,8 @@ import {
   Home, 
   ShoppingBag, 
   MessageSquare, 
-  MoreHorizontal 
+  Activity,
+  User 
 } from 'lucide-react';
 import { ROUTES } from '@/lib/constants/routes';
 
@@ -15,17 +16,18 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   const navItems = [
-    { label: 'الرئيسية', icon: Home, href: ROUTES.DASHBOARD },
-    { label: 'السوق', icon: ShoppingBag, href: '/marketplace' },
+    { label: 'الرئيسية', icon: Home, href: ROUTES.HOME },
+    { label: 'السوق', icon: ShoppingBag, href: ROUTES.MARKETPLACE },
+    { label: 'نشاطاتي', icon: Activity, href: ROUTES.MY_ACTIVITY },
     { label: 'الرسائل', icon: MessageSquare, href: ROUTES.MESSAGES },
-    { label: 'المزيد', icon: MoreHorizontal, href: '/more' },
+    { label: 'حسابي', icon: User, href: ROUTES.PROFILE },
   ];
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-surface/95 backdrop-blur-xl border-t border-outline-variant/10 pb-safe shadow-[0_-8px_30px_rgba(0,0,0,0.08)]">
       <div className="flex items-center justify-around h-16 px-2">
         {navItems.map((item) => {
-          const isActive = pathname === item.href || (item.href !== ROUTES.DASHBOARD && pathname?.startsWith(item.href));
+          const isActive = pathname === item.href || (item.href !== ROUTES.HOME && pathname?.startsWith(item.href));
           return (
             <Link 
               key={item.href}

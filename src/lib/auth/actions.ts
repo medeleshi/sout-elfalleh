@@ -40,7 +40,7 @@ export async function signInAction(prevState: any, formData: FormData) {
   }
 
   revalidatePath('/', 'layout');
-  redirect(ROUTES.DASHBOARD);
+  redirect(ROUTES.HOME);
 }
 
 export async function getCurrentUser() {
@@ -150,5 +150,59 @@ export async function updatePasswordAction(
   }
 
   revalidatePath('/', 'layout');
-  redirect(ROUTES.DASHBOARD);
+  redirect(ROUTES.HOME);
+}
+export async function updateProfileAction(
+  prevState: any,
+  formData: FormData
+): Promise<{ error?: string; success?: boolean; message?: string }> {
+  const supabase = await createClient();
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return { error: "يرجى تسجيل الدخول للمتابعة." };
+  }
+
+  const fullName = formData.get("fullName") as string;
+  const role = formData.get("role") as string;
+  const bio = formData.get("bio") as string;
+  const governorateId = formData.get("governorateId") as string;
+  const activityTypeId = formData.get("activityTypeId") as string;
+  const avatarUrl = formData.get("avatarUrl") as string;
+  const phone = formData.get("phone") as string;
+
+  if (!fullName) {
+    return { error: "الاسم الكامل مطلوب." };
+  }
+
+  try {
+    // 1. Update Public Profile
+    const { error: profileError } = await (supabase.from("profiles") as any)
+      .upsert({
+        id: user.id,
+        full_name: fullName,
+        role: role || null,
+        bio: bio || null,
+        governorate_id: governorateId || null,
+        activity_type_id: activityTypeId || null,
+        avatar_url: avatarUrl || null,
+        updated_at: new Date().toISOString(),
+      });
+
+    if (profileError) throw profileError;
+
+    // 2. Update Private Details
+    const { error: privateError } = await (supabase.from("profile_private_details") as any)
+      .upsert({
+        user_id: user.id,
+        phone: phone || null,
+      });
+
+    if (privateError) throw privateError;
+
+    revalidatePath("/", "layout");
+    return { success: true, message: "تم تحديث الملف الشخصي بنجاح!" };
+  } catch (err: any) {
+    return { error: err.message || "حدث خطأ أثناء تحديث البيانات." };
+  }
 }

@@ -2,11 +2,12 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { OnboardingForm } from "./OnboardingForm";
 import { getCurrentUser } from "@/lib/auth/actions";
+import { ROUTES } from "@/lib/constants/routes";
 
 export default async function OnboardingPage() {
   const user = await getCurrentUser();
   if (!user) {
-    redirect("/login");
+    redirect(ROUTES.LOGIN);
   }
 
   const supabase = await createClient();
@@ -19,7 +20,7 @@ export default async function OnboardingPage() {
     .single() as any);
 
   if (profile?.is_onboarding_completed) {
-    redirect("/dashboard");
+    redirect(ROUTES.HOME);
   }
 
   // Fetch Lookups

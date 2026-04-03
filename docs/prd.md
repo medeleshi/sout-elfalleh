@@ -320,8 +320,21 @@ and adapt feed priorities and CTAs accordingly.
 Over time, the system should adapt to what the user actually interacts with, not only what they selected during onboarding.
 
 ### Dynamic Primary CTA by Role
-- Farmer: **Add Listing** / **Ask a Question**
-- Buyer: **Add Purchase Request**
+- Farmer: **Add Listing** / **Ask a Question** as the primary default, with **Add Purchase Request** available as a secondary publishing action when relevant
+- Buyer: **Add Purchase Request** as the primary default, with **Add Listing** available as a secondary publishing action when relevant
+
+### Unified Publishing Entry Principle
+The product should support one shared publishing architecture for commercial creation flows.
+All authenticated users may publish either:
+- a listing
+- or a purchase request
+
+However, the system should guide users toward the most relevant default action based on their role, intent, and recent behavior.
+This means:
+- farmers should see listing creation emphasized by default
+- buyers should see purchase request creation emphasized by default
+- the alternate commercial publishing flow should remain available without unnecessary friction
+- the publish entry should remain consistent while the form variant, helper text, and defaults adapt to the selected publishing type
 
 ### Personalization States
 The platform should support multiple personalization maturity states:
@@ -696,27 +709,35 @@ Allow users to publish a question or agricultural discussion item quickly.
 
 ### 11.9 Create Listing
 #### Goal
-Allow farmers to publish a product for sale quickly with enough quality and trust to drive real buyer response.
+Allow users to publish a product for sale quickly with enough quality and trust to drive real buyer response.
 
 #### Functional Requirements
-- Farmers can create a product listing for sale
+- Users can create a product listing for sale
 - Users can enter product name, quantity, price, category, description, and location
 - Users can upload media
 - Users can publish or cancel
 - The form should prioritize fast completion and clear required fields
 - The system should encourage minimum quality fields such as clear product title, category, quantity, location, and at least one image when possible
 - The system should guide first-time sellers toward stronger listings through helper text, examples, and completion prompts
+- Listing creation should use a shared publishing shell that remains consistent across user types while keeping listing-specific fields and guidance
 
 ### 11.9A Create Purchase Request
 #### Goal
-Allow buyers to publish structured demand clearly so that farmers can respond with confidence and speed.
+Allow users to publish structured demand clearly so that farmers and other relevant sellers can respond with confidence and speed.
 
 #### Functional Requirements
-- Buyers can create a purchase request
+- Users can create a purchase request
 - Users can enter product name, quantity, desired location, timing, and optional price or budget context
 - Users can publish or cancel
-- The form should stay short while still producing enough detail for relevant farmer responses
+- The form should stay short while still producing enough detail for relevant responses
 - The system should guide first-time buyers toward clear demand descriptions and realistic request quality
+- Purchase request creation should use a shared publishing shell that remains consistent across user types while keeping request-specific fields and guidance
+
+#### Publishing UX Rule
+- The product should offer one consistent commercial publishing entry point with a clear choice between **Create Listing** and **Create Purchase Request**
+- The default selected publishing type should adapt to user role and intent
+- The alternate publishing type should remain available without hard role blocking
+- Listing and request forms may share layout, validation patterns, helper treatment, and action structure, while preserving distinct fields and terminology where needed
 
 ### 11.10 Edit Profile
 #### Functional Requirements
@@ -825,6 +846,7 @@ Can:
 - view personalized feed
 - create posts
 - create listings
+- create purchase requests when relevant
 - manage listings
 - manage posts
 - message buyers
@@ -836,6 +858,7 @@ Can:
 - browse marketplace
 - search products
 - create purchase requests
+- create listings when relevant
 - message farmers
 - manage purchase requests
 - receive relevant supply recommendations
@@ -854,15 +877,15 @@ May later include:
 
 ## 13. Key User Journeys
 
-### Journey 1: Farmer Publishes Listing
-1. User lands on Home or Marketplace
-2. User clicks **Add Listing**
-3. User completes listing form
+### Journey 1: User Publishes Listing
+1. User lands on Home, Marketplace, or the unified publish entry
+2. User selects **Add Listing**
+3. User completes the listing form
 4. Listing is published
-5. Buyer discovers listing through Marketplace or personalized Home
-6. Buyer messages farmer
-7. Farmer manages conversation
-8. Farmer marks listing as sold
+5. Relevant buyers discover the listing through Marketplace or personalized Home
+6. A buyer messages the publisher
+7. The publisher manages the conversation
+8. The publisher updates or closes the listing when appropriate
 
 ### Journey 2: Farmer Publishes a Question
 1. User clicks **Ask a Question**
@@ -879,12 +902,13 @@ May later include:
 4. Buyer clicks **Message Seller**
 5. Conversation starts in Messages
 
-### Journey 4: Buyer Publishes a Purchase Request
-1. Buyer clicks **Add Purchase Request**
-2. Buyer defines product, quantity, location, and need
-3. Request is published
-4. Farmers discover the request through Home or Marketplace
-5. Farmers message buyer directly
+### Journey 4: User Publishes a Purchase Request
+1. User lands on Home, Marketplace, or the unified publish entry
+2. User selects **Add Purchase Request**
+3. User defines product, quantity, location, timing, and need
+4. The request is published
+5. Relevant sellers discover the request through Home or Marketplace
+6. Sellers message the requester directly
 
 
 ### Journey 5: User Saves and Follows Relevant Opportunities

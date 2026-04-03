@@ -1,13 +1,14 @@
 // src/lib/constants/routes.ts
 export const ROUTES = {
-  HOME: '/',
+  LANDING: '/',
   LOGIN: '/login',
   SIGNUP: '/signup',
   FORGOT_PASSWORD: '/forgot-password',
   UPDATE_PASSWORD: '/update-password',
   AUTH_CALLBACK: '/auth/callback',
   ONBOARDING: '/onboarding',
-  DASHBOARD: '/dashboard',
+  HOME: '/home',
+  MARKETPLACE: '/marketplace',
   LISTINGS: '/listings',
   LISTINGS_NEW: '/listings/new',
   PURCHASE_REQUESTS: '/purchase-requests',
@@ -15,5 +16,10 @@ export const ROUTES = {
   NOTIFICATIONS: '/notifications',
   MESSAGES: '/messages',
   PROFILE: '/profile',
+  PROFILE_EDIT: '/profile/edit',
   SETTINGS: '/settings',
+  SEARCH: '/search',
+  MY_ACTIVITY: '/activity',
+  LISTING_EDIT: (id: string) => `/listings/${id}/edit`,
+  POST_EDIT: (id: string) => `/posts/${id}/edit`,
 };
