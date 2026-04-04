@@ -4,6 +4,7 @@ import ProfileHeader from '@/components/profile/ProfileHeader';
 import ProfileStats from '@/components/profile/ProfileStats';
 import ProfileActivityTabs from '@/components/profile/ProfileActivityTabs';
 import { getCurrentProfile } from '@/lib/auth/get-current-profile';
+import { getUserListings } from '@/lib/data/get-user-activity';
 import { redirect } from 'next/navigation';
 import { ROUTES } from '@/lib/constants/routes';
 
@@ -20,6 +21,7 @@ export default async function ProfilePage() {
   }
 
   const { profile } = profileData;
+  const listings = await getUserListings(profile.id, false);
 
   return (
     <div className="flex flex-col gap-6 lg:gap-8 w-full mx-auto max-w-5xl animate-fade-in pb-12" dir="rtl">
@@ -43,7 +45,7 @@ export default async function ProfilePage() {
       {/* Role-Specific Activity Navigation Block */}
       <section className="mt-4">
         <h2 className="text-lg font-bold text-on-surface mb-4 px-2">النشاط الأخير</h2>
-        <ProfileActivityTabs role={profile.role} />
+        <ProfileActivityTabs role={profile.role} listings={listings} />
       </section>
       
     </div>

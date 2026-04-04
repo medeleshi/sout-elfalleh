@@ -1,79 +1,63 @@
-'use client';
+// src/app/(app)/messages/page.tsx
+import React from 'react';
+import { getCurrentProfile } from '@/lib/auth/get-current-profile';
+import { getConversationsForUser } from '@/lib/data/get-conversations';
+import { MessagesClient } from '@/components/messaging/MessagesClient';
+import { MessageSquare } from 'lucide-react';
 
-import React, { useState } from 'react';
-import { ConversationsListPanel } from '@/components/messaging/ConversationsListPanel';
-import { ActiveChatWindow } from '@/components/messaging/ActiveChatWindow';
-import { ContextPanel } from '@/components/messaging/ContextPanel';
-
-// --- MOCK DATA ---
-const MOCK_CONVERSATIONS = [
-  {
-    id: 'c1',
-    user: { name: 'سليم بن خليفة', role: 'فلاح منتج', isVerified: true, avatar: null },
-    lastMessage: 'هل يمكننا الاتفاق على موعد للنقل؟',
-    time: 'منذ 5 د',
-    unread: true,
-    status: 'new' as const, 
-    linkedItem: { id: '1', title: 'بطاطا جندوبة الممتازة', category: 'خضروات', price: '1.200 د.ت' }
-  },
-  {
-    id: 'c2',
-    user: { name: 'الهادي الماجري', role: 'تاجر جملة', isVerified: false, avatar: null },
-    lastMessage: 'شكراً لك، سأقوم بالتأكيد غداً.',
-    time: 'منذ ساعتين',
-    unread: false,
-    status: 'replied' as const,
-    linkedItem: { id: '2', title: 'طماطم فصلية', category: 'خضروات', price: '0.900 د.ت' }
+export default async function MessagesPage() {
+  const profileData = await getCurrentProfile();
+  if (!profileData?.user) {
+    return null;
   }
-];
 
-const MOCK_MESSAGES = [
-  { id: 'm1', text: 'السلام عليكم، هل البطاطا لا تزال متوفرة؟', sender: 'me' as const, time: '10:30 ص' },
-  { id: 'm2', text: 'وعليكم السلام، نعم متوفرة حوالي 500 كغ حالياً.', sender: 'them' as const, time: '10:32 ص' },
-  { id: 'm3', text: 'ممتاز، أحتاج 200 كغ للتوصيل لتونس العاصمة.', sender: 'me' as const, time: '10:35 ص' },
-  { id: 'm4', text: 'هل يمكننا الاتفاق على موعد للنقل؟', sender: 'them' as const, time: '10:40 ص' },
-];
+  const conversations = await getConversationsForUser(profileData.user.id);
 
-export default function MessagesPage() {
-  const [selectedId, setSelectedId] = useState('c1');
-  const [showContext, setShowContext] = useState(false);
-  const [view, setView] = useState<'list' | 'chat'>('list');
+  // Shape data to match the existing ConversationsListPanel interface
+  const shapedConversations = conversations.map((conv) => ({
+    id: conv.id,
+    user: {
+      name: conv.otherParticipant?.full_name || 'عضو نشط',
+      role: conv.otherParticipant?.role || 'عضو',
+      isVerified: true,
+      avatar: conv.otherParticipant?.avatar_url || null,
+    },
+    lastMessage: conv.lastMessage || 'ابدأ المحادثة...',
+    time: conv.lastMessageAt
+      ? new Date(conv.lastMessageAt).toLocaleTimeString('ar-TN', { hour: '2-digit', minute: '2-digit' })
+      : '',
+    unread: conv.unreadCount > 0,
+    status: (conv.unreadCount > 0 ? 'new' : 'replied') as 'new' | 'replied',
+    linkedItem: conv.linkedItem
+      ? {
+          id: conv.linkedItem.id,
+          title: conv.linkedItem.title,
+          category: conv.linkedItem.type === 'listing' ? 'عرض بيع' : 'طلب شراء',
+          price: '',
+        }
+      : { id: '', title: 'محادثة مباشرة', category: '', price: '' },
+  }));
 
-  const activeConv = MOCK_CONVERSATIONS.find(c => c.id === selectedId) || MOCK_CONVERSATIONS[0];
+  if (shapedConversations.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] gap-8 text-center px-4" dir="rtl">
+        <div className="w-24 h-24 bg-surface-container-low rounded-full flex items-center justify-center text-on-surface-variant/20">
+          <MessageSquare className="w-12 h-12" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-2xl font-black text-on-surface">لا توجد محادثات بعد</h2>
+          <p className="text-sm text-on-surface-variant/60 font-medium italic max-w-sm">
+            حين تتواصل مع بائع أو مشتري، ستظهر محادثتك هنا مباشرة.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="fixed top-20 bottom-16 inset-x-0 lg:static z-[45] flex flex-col bg-surface-container-lowest overflow-hidden lg:px-8 lg:py-6" dir="rtl">
-      <div className="flex-1 flex overflow-hidden lg:rounded-[3rem] lg:border-2 lg:border-outline-variant/30 lg:shadow-2xl lg:bg-white relative">
-        
-        {/* PANEL 1: Conversations List */}
-        <ConversationsListPanel 
-          conversations={MOCK_CONVERSATIONS}
-          selectedId={selectedId}
-          onSelect={(id) => { setSelectedId(id); setView('chat'); }}
-          isHiddenOnMobile={view === 'chat'}
-        />
-
-        {/* PANEL 2: Active Chat Window */}
-        <ActiveChatWindow 
-          conversation={activeConv}
-          messages={MOCK_MESSAGES}
-          onBack={() => setView('list')}
-          onToggleContext={() => setShowContext(true)}
-          onSendMessage={(text) => console.log('Sending:', text)}
-          isHiddenOnMobile={view === 'list'}
-        />
-
-        {/* PANEL 3: Context Sidebar */}
-        <ContextPanel 
-          isOpen={showContext}
-          onClose={() => setShowContext(false)}
-          user={activeConv.user}
-          linkedItem={activeConv.linkedItem}
-        />
-      </div>
-
-      {/* Navigation Spacer for Mobile - ensuring it doesn't overlap the fixed composer if needed */}
-      <div className="h-[env(safe-area-inset-bottom)] lg:hidden shrink-0" />
-    </div>
+    <MessagesClient
+      conversations={shapedConversations}
+      currentUserId={profileData.user.id}
+    />
   );
 }

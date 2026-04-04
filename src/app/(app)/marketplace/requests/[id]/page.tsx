@@ -18,10 +18,11 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export default async function RequestDetailsPage({ params }: { params: { id: string } }) {
+export default async function RequestDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   // Mock Data for Detail View
   const request = {
-    id: params.id,
+    id: id,
     title: 'مطلوب كمية كبيرة من الطماطم الفصلية',
     category: 'خضروات',
     quantity: 2000,

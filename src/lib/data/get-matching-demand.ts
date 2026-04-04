@@ -16,7 +16,7 @@ export async function getMatchingDemand(userId: string, categoryId?: string, gov
 
   // If we have a category, prioritize it
   if (categoryId) {
-    query = query.eq('category_id', categoryId);
+    query = query.eq('category', categoryId);
   }
 
   // If we have a governorate, prioritize it

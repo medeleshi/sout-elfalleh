@@ -69,7 +69,7 @@ export function ContextPanel({
               <h4 className="text-[15px] lg:text-base font-black text-on-surface group-hover:text-primary transition-colors leading-snug truncate">{linkedItem.title}</h4>
               <p className="text-[13px] lg:text-sm font-black text-primary italic">{linkedItem.price}</p>
             </div>
-            <Link href={`/marketplace/listings/${linkedItem.id}`}>
+            <Link href={`/listings/${linkedItem.id}`}>
               <Button variant="outline" className="w-full h-10 lg:h-11 rounded-lg lg:rounded-xl font-black text-[11px] lg:text-xs border-outline-variant/60 hover:bg-white shadow-sm">عرض الإعلان كاملاً</Button>
             </Link>
           </div>

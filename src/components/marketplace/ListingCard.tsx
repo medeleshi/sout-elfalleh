@@ -15,6 +15,7 @@ import {
   Zap
 } from 'lucide-react';
 import { getFreshnessInfo } from '@/lib/utils/freshness';
+import { ROUTES } from '@/lib/constants/routes';
 
 interface Listing {
   id: string;
@@ -30,6 +31,7 @@ interface Listing {
   isVerified?: boolean;
   createdAt: string;
   freshnessLabel?: string; // e.g., "جديد جدًا"
+  listing_images?: { storage_path: string }[];
 }
 
 interface ListingCardProps {
@@ -50,9 +52,9 @@ export function ListingCard({ listing }: ListingCardProps) {
       </div>
 
       {/* Media & Quick Info Overlay */}
-      <Link href={`/marketplace/listings/${listing.id}`} className="block relative aspect-[4/3] overflow-hidden bg-surface-container-low group-hover:cursor-pointer">
+      <Link href={`/listings/${listing.id}`} className="block relative aspect-[4/3] overflow-hidden bg-surface-container-low group-hover:cursor-pointer">
         <img 
-          src={listing.image || 'https://images.unsplash.com/photo-1518977676601-b53f02bad673?auto=format&fit=crop&q=80&w=400'} 
+          src={listing.image || (listing.listing_images?.[0]?.storage_path ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/listings/${listing.listing_images[0].storage_path}` : 'https://images.unsplash.com/photo-1518977676601-b53f02bad673?auto=format&fit=crop&q=80&w=400')} 
           alt={listing.title}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
@@ -84,13 +86,15 @@ export function ListingCard({ listing }: ListingCardProps) {
                <div className="p-1 w-fit rounded-lg bg-primary/10 text-primary">
                   <ShieldCheck className="w-3 h-3" />
                </div>
-               <span className="text-[9px] font-black text-on-surface-variant/40 tracking-widest uppercase">{listing.publisher}</span>
+               <span className="text-[9px] font-black text-on-surface-variant/40 tracking-widest uppercase">
+                 {(listing as any).profiles?.full_name || listing.publisher}
+               </span>
             </div>
             {listing.isVerified && (
               <span className="text-[8px] font-black text-primary bg-primary/5 px-2 py-0.5 rounded-md border border-primary/10">هوية موثقة</span>
             )}
           </div>
-          <Link href={`/marketplace/listings/${listing.id}`}>
+          <Link href={ROUTES.LISTING_DETAILS(listing.id)}>
             <h3 className="text-xl font-black text-on-surface line-clamp-1 group-hover:text-primary transition-colors leading-tight">
               {listing.title}
             </h3>
@@ -110,7 +114,10 @@ export function ListingCard({ listing }: ListingCardProps) {
             <MapPin className="w-5 h-5 text-on-surface-variant/40" />
             <div className="space-y-0.5">
                <span className="text-[8px] font-black text-on-surface-variant/30 uppercase block">الموقع</span>
-               <p className="text-sm font-black text-on-surface">{listing.location}</p>
+               <p className="text-sm font-black text-on-surface">
+                 {(listing as any).governorates?.name_ar || listing.location}
+                 {(listing as any).region ? ` - ${(listing as any).region}` : ''}
+               </p>
             </div>
           </div>
         </div>
@@ -122,7 +129,7 @@ export function ListingCard({ listing }: ListingCardProps) {
             <span className="text-[10px] font-bold text-on-surface-variant/60">د.ت</span>
           </div>
           
-          <Link href={`/marketplace/listings/${listing.id}`}>
+          <Link href={ROUTES.LISTING_DETAILS(listing.id)}>
             <button className="flex items-center gap-2 px-5 py-3 bg-primary/5 hover:bg-primary text-primary hover:text-on-primary rounded-xl font-black text-xs transition-all active:scale-95 group/btn">
                <span>التفاصيل</span>
                <MessageCircle className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform rotate-180" />

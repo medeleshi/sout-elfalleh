@@ -4,7 +4,8 @@ import { getCurrentUser } from '@/lib/auth/actions';
 import { redirect, notFound } from 'next/navigation';
 import { EditListingForm } from '@/components/listings/EditListingForm';
 
-export default async function EditListingPage({ params }: { params: { id: string } }) {
+export default async function EditListingPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const supabase = await createClient();
   const user = await getCurrentUser();
 
@@ -15,8 +16,8 @@ export default async function EditListingPage({ params }: { params: { id: string
   // Fetch Listing
   const { data: listing, error: listingError } = await (supabase
     .from('listings') as any)
-    .select('*')
-    .eq('id', params.id)
+    .select('*, listing_images(storage_path)')
+    .eq('id', id)
     .single();
 
   if (listingError || !listing) {

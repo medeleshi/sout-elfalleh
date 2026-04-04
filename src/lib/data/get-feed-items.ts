@@ -94,12 +94,18 @@ export async function getFeedItems(limit = 20): Promise<FeedItem[]> {
     ...(listings?.map(l => ({ 
       ...l, 
       type: 'listing' as const,
-      unit: l.quantity_unit || l.unit 
+      unit: l.unit,
+      location: l.governorates?.name_ar || 'تونس',
+      publisher: l.profiles?.full_name || 'بائع',
+      isVerified: true
     })) || []),
     ...(requests?.map(r => ({ 
       ...r, 
       type: 'purchase_request' as const,
-      unit: r.unit || r.quantity_unit 
+      unit: r.unit,
+      location: r.governorates?.name_ar || 'تونس',
+      publisher: r.profiles?.full_name || 'مشتري',
+      isVerified: true
     })) || []),
     ...(posts?.map(p => ({ 
       ...p, 

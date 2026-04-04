@@ -97,7 +97,7 @@ export function ActiveChatWindow({
                 <span className="text-[10px] font-black text-on-surface truncate pr-0.5">{conversation.linkedItem.title}</span>
              </div>
           </div>
-          <Link href={`/marketplace/listings/${conversation.linkedItem.id}`}>
+          <Link href={`/listings/${conversation.linkedItem.id}`}>
             <button className="text-[9px] font-black text-primary underline underline-offset-2 uppercase tracking-widest transition-all active:opacity-50 px-2">
               التفاصيل
             </button>

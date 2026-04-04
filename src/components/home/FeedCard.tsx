@@ -26,7 +26,7 @@ export default function FeedCard({ item }: FeedCardProps) {
   const isRequest = item.type === 'purchase_request';
 
   const href = isListing 
-    ? `/marketplace/listings/${item.id}` 
+    ? `/listings/${item.id}` 
     : isRequest 
       ? `/marketplace/requests/${item.id}`
       : `/posts/${item.id}`;

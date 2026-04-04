@@ -20,6 +20,7 @@ export const ROUTES = {
   SETTINGS: '/settings',
   SEARCH: '/search',
   MY_ACTIVITY: '/activity',
+  LISTING_DETAILS: (id: string) => `/listings/${id}`,
   LISTING_EDIT: (id: string) => `/listings/${id}/edit`,
   POST_EDIT: (id: string) => `/posts/${id}/edit`,
 };

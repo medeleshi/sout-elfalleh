@@ -4,15 +4,17 @@ import React, { useState } from 'react';
 import { LayoutGrid, MessageCircle, FileText, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { ROUTES } from '@/lib/constants/routes';
+import { ListingCard } from '@/components/marketplace/ListingCard';
 
 interface ProfileActivityTabsProps {
   role: string | null;
   isOwnProfile?: boolean;
+  listings?: any[];
 }
 
 type TabValue = 'listings' | 'posts' | 'requests';
 
-export default function ProfileActivityTabs({ role, isOwnProfile = true }: ProfileActivityTabsProps) {
+export default function ProfileActivityTabs({ role, isOwnProfile = true, listings = [] }: ProfileActivityTabsProps) {
   const [activeTab, setActiveTab] = useState<TabValue>('listings');
 
   // PRD refinement: Universally show all main activity types 
@@ -55,27 +57,34 @@ export default function ProfileActivityTabs({ role, isOwnProfile = true }: Profi
       {/* Tabs Content */}
       <div className="p-6 md:p-8 min-h-[300px] bg-surface-container-lowest">
         
-        {/* Placeholder Content for Mock Activities */}
         {activeTab === 'listings' && (
-          <div className="flex flex-col items-center justify-center h-full py-10 text-center animate-fade-in">
-            <div className="w-20 h-20 bg-primary/5 rounded-full flex items-center justify-center mb-4 text-primary shadow-inner">
-              <LayoutGrid className="w-10 h-10" />
+          listings && listings.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in text-right">
+              {listings.map(listing => (
+                 <ListingCard key={listing.id} listing={{...listing, created_at: listing.createdAt}} />
+              ))}
             </div>
-            <h3 className="text-xl font-bold text-on-surface mb-2">لا توجد إعلانات</h3>
-            <p className="text-on-surface-variant text-sm max-w-sm mb-6">
-              {isOwnProfile 
-                ? 'قم بنشر إعلانك الأول للوصول لآلاف المشترين المحتملين.' 
-                : 'لا توجد إعلانات معروضة من قبل هذا المستخدم حالياً.'}
-            </p>
-            {isOwnProfile && (
-              <Link 
-                href={ROUTES.LISTINGS_NEW || '/listings/new'} 
-                className="inline-flex items-center justify-center px-6 py-3 bg-primary text-on-primary font-bold rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
-              >
-                إضافة إعلان جديد
-              </Link>
-            )}
-          </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-full py-10 text-center animate-fade-in">
+              <div className="w-20 h-20 bg-primary/5 rounded-full flex items-center justify-center mb-4 text-primary shadow-inner">
+                <LayoutGrid className="w-10 h-10" />
+              </div>
+              <h3 className="text-xl font-bold text-on-surface mb-2">لا توجد إعلانات</h3>
+              <p className="text-on-surface-variant text-sm max-w-sm mb-6">
+                {isOwnProfile 
+                  ? 'قم بنشر إعلانك الأول للوصول لآلاف المشترين المحتملين.' 
+                  : 'لا توجد إعلانات معروضة من قبل هذا المستخدم حالياً.'}
+              </p>
+              {isOwnProfile && (
+                <Link 
+                  href={ROUTES.LISTINGS_NEW || '/listings/new'} 
+                  className="inline-flex items-center justify-center px-6 py-3 bg-primary text-on-primary font-bold rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
+                >
+                  إضافة إعلان جديد
+                </Link>
+              )}
+            </div>
+          )
         )}
 
         {activeTab === 'posts' && (

@@ -40,29 +40,33 @@ const SPONSORED_LISTINGS = [
 
 export default async function MarketplacePage() {
   const profileData = await getCurrentProfile();
-  if (!profileData || !profileData.profile) return null;
-  const { profile } = profileData;
-  const isFarmer = profile.role === 'farmer';
+  const profile = profileData?.profile;
+  const isFarmer = profile?.role === 'farmer';
+  const governorateId = profile?.governorate_id || null;
+  const governorateName = profile?.governorate_name_ar || 'تونس';
 
   // Real data fetching
-  const matchingDemand = await getMatchingDemand(
+  const matchingDemand = profile ? await getMatchingDemand(
     profile.id, 
     profile.activity_type_id || undefined, 
-    profile.governorate_id || undefined
-  );
+    governorateId || undefined
+  ) : [];
   
   const allFeedItems = await getFeedItems(24);
-  const marketplaceItems = allFeedItems.filter(item => item.type === 'listing' || item.type === 'purchase_request');
+  const marketplaceItems = allFeedItems.filter(item => 
+     (item.type === 'listing' || item.type === 'purchase_request') && 
+     item.status === 'active' // Public visibility enforcement
+  );
 
   // Filter for nearby (demo logic)
-  const nearbyItems = marketplaceItems.filter(item => 
-    item.governorate_id === profile.governorate_id
-  ).slice(0, 3);
+  const nearbyItems = governorateId ? marketplaceItems.filter(item => 
+    item.governorate_id === governorateId
+  ).slice(0, 3) : marketplaceItems.slice(0, 3);
 
   return (
     <div className="w-full max-w-7xl mx-auto space-y-12 pb-32 pt-8 px-4 lg:px-8" dir="rtl">
       {/* 1. Personalized Header with role-based CTA */}
-      <MarketplaceHeader role={(profile.role as UserRole) || 'buyer'} />
+      <MarketplaceHeader role={(profile?.role as UserRole) || 'buyer'} />
 
       <div className="flex flex-col lg:flex-row gap-12 items-start">
         {/* 2. Search and advanced filters (Desktop Sidebar) */}
@@ -76,7 +80,7 @@ export default async function MarketplacePage() {
             {/* Active Filter Chips (PRD: Feedback and State Clarity) */}
             <div className="flex flex-wrap items-center gap-3">
                <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-xs font-black border border-primary/20 group hover:bg-primary hover:text-on-primary transition-all cursor-pointer">
-                  <span>الولاية: {profile.governorate_name_ar || 'جندوبة'}</span>
+                  <span>الولاية: {governorateName}</span>
                   <X className="w-3.5 h-3.5" />
                </div>
                <div className="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-full text-xs font-black shadow-lg shadow-primary/20 cursor-pointer">
@@ -140,7 +144,7 @@ export default async function MarketplacePage() {
                 <div className="p-2 bg-secondary/10 rounded-xl text-secondary">
                   <MapPin className="w-5 h-5" />
                 </div>
-                <h2 className="text-2xl font-black text-on-surface">فرص في {profile.governorate_name_ar || 'جندوبة'}</h2>
+                <h2 className="text-2xl font-black text-on-surface">فرص في {governorateName}</h2>
               </div>
             </div>
             
@@ -153,7 +157,7 @@ export default async function MarketplacePage() {
                    <div className="p-4 bg-white rounded-2xl shadow-sm text-outline-variant group-hover:scale-110 transition-transform">
                       <Compass className="w-8 h-8" />
                    </div>
-                   <p className="text-xs font-black uppercase tracking-widest leading-relaxed">كن أول من يضيف عرضاً<br/>في {profile.governorate_name_ar || 'منطقتك'}</p>
+                   <p className="text-xs font-black uppercase tracking-widest leading-relaxed">كن أول من يضيف عرضاً<br/>في {governorateName}</p>
                 </div>
               )}
             </div>

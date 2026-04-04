@@ -4,7 +4,8 @@ import { getCurrentUser } from '@/lib/auth/actions';
 import { redirect, notFound } from 'next/navigation';
 import { EditPostForm } from '@/components/posts/EditPostForm';
 
-export default async function EditPostPage({ params }: { params: { id: string } }) {
+export default async function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const supabase = await createClient();
   const user = await getCurrentUser();
 
@@ -16,7 +17,7 @@ export default async function EditPostPage({ params }: { params: { id: string } 
   const { data: post, error: postError } = await (supabase
     .from('posts') as any)
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .single();
 
   if (postError || !post) {
