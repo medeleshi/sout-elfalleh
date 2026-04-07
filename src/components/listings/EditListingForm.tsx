@@ -4,7 +4,6 @@ import React, { useState, useRef, useTransition } from 'react';
 import { PublishingShell } from '@/components/publishing/PublishingShell';
 import { FormField } from '@/components/publishing/FormField';
 import { ImagePicker } from '@/components/publishing/ImagePicker';
-import { CATEGORIES, UNITS } from '@/lib/constants/categories';
 import { updateListingAction, updateListingStatusAction, deleteListingAction } from '@/lib/listings/actions';
 import { useRouter } from 'next/navigation';
 import { CheckCircle2, Trash2, AlertCircle } from 'lucide-react';
@@ -12,10 +11,13 @@ import { Button } from '@/components/ui/button';
 
 interface EditListingFormProps {
   listing: any;
-  governorates: { id: string; name_ar: string }[];
+  categories: any[];
+  units: any[];
+  governorates: any[];
+  categoryUnits: any[];
 }
 
-export function EditListingForm({ listing, governorates }: EditListingFormProps) {
+export function EditListingForm({ listing, categories, units, governorates, categoryUnits }: EditListingFormProps) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [isPending, startTransition] = useTransition();
@@ -26,14 +28,22 @@ export function EditListingForm({ listing, governorates }: EditListingFormProps)
   // Form State
   const [formData, setFormData] = useState({
     title: listing.title || '',
-    category: listing.category || '',
+    category_id: listing.category_id || '',
     quantity: listing.quantity || '',
-    unit: listing.unit || 'kg',
+    unit_id: listing.unit_id || '',
     price: listing.price || '',
     description: listing.description || '',
     governorate_id: listing.governorate_id || '',
     listing_images: listing.listing_images?.map((img: any) => img.storage_path) || listing.listing_images || [],
   });
+
+  // Filter units based on category
+  const filteredUnits = formData.category_id 
+    ? units.filter(u => categoryUnits.some(cu => cu.category_id === formData.category_id && cu.unit_id === u.id))
+    : units;
+
+  // Fallback: if selected category has no units mapped, show all units to prevent broken UX
+  const displayUnits = (formData.category_id && filteredUnits.length === 0) ? units : filteredUnits;
 
   const handleAction = async (fd: FormData) => {
     setIsSubmitting(true);
@@ -182,13 +192,13 @@ export function EditListingForm({ listing, governorates }: EditListingFormProps)
 
             <FormField label="التصنيف" required>
               <select 
-                name="category"
-                value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                name="category_id"
+                value={formData.category_id}
+                onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
                 className="w-full h-14 bg-surface-container-low border-2 border-transparent focus:border-primary/20 rounded-2xl px-6 text-sm font-medium outline-none transition-all shadow-inner appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22/%3E%3C/svg%3E')] bg-[length:12px_12px] bg-[position:left_24px_center] bg-no-repeat"
               >
                 <option value="">اختر الفئة...</option>
-                {CATEGORIES.map(cat => <option key={cat.id} value={cat.id}>{cat.label}</option>)}
+                {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name_ar}</option>)}
               </select>
             </FormField>
 
@@ -206,15 +216,17 @@ export function EditListingForm({ listing, governorates }: EditListingFormProps)
 
               <FormField label="الوحدة" required>
                 <select 
-                  name="unit"
-                  value={formData.unit}
-                  onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
+                  name="unit_id"
+                  value={formData.unit_id}
+                  onChange={(e) => setFormData({ ...formData, unit_id: e.target.value })}
                   className="w-full h-14 bg-surface-container-low border-2 border-transparent focus:border-primary/20 rounded-2xl px-6 text-sm font-black outline-none transition-all shadow-inner appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22/%3E%3C/svg%3E')] bg-[length:12px_12px] bg-[position:left_20px_center] bg-no-repeat text-primary/80"
                 >
-                  {UNITS.map(unit => <option key={unit.id} value={unit.id}>{unit.label}</option>)}
+                  <option value="">اختر الوحدة...</option>
+                  {displayUnits.map(unit => <option key={unit.id} value={unit.id}>{unit.name_ar}</option>)}
                 </select>
               </FormField>
             </div>
+
 
             <FormField label="السعر (TND)">
               <div className="relative">

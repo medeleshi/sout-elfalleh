@@ -54,7 +54,18 @@ export function ListingCard({ listing }: ListingCardProps) {
       {/* Media & Quick Info Overlay */}
       <Link href={`/listings/${listing.id}`} className="block relative aspect-[4/3] overflow-hidden bg-surface-container-low group-hover:cursor-pointer">
         <img 
-          src={listing.image || (listing.listing_images?.[0]?.storage_path ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/listings/${listing.listing_images[0].storage_path}` : 'https://images.unsplash.com/photo-1518977676601-b53f02bad673?auto=format&fit=crop&q=80&w=400')} 
+        src={(() => {
+          const images = (listing.listing_images as any[] | undefined) || [];
+          const sorted = [...images].sort((a, b) => {
+            if (a.is_primary) return -1;
+            if (b.is_primary) return 1;
+            return (a.sort_order || 0) - (b.sort_order || 0);
+          });
+          const first = sorted[0]?.storage_path;
+          if (!first) return 'https://images.unsplash.com/photo-1518977676601-b53f02bad673?auto=format&fit=crop&q=80&w=400';
+          if (first.startsWith('http')) return first;
+          return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/listings/${first}`;
+        })()} 
           alt={listing.title}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
@@ -72,7 +83,7 @@ export function ListingCard({ listing }: ListingCardProps) {
               <span>{getFreshnessInfo(listing.createdAt || (listing as any).created_at).label}</span>
            </div>
            <div className="bg-white text-primary px-3 py-1.5 rounded-xl text-[10px] font-black shadow-lg">
-              {listing.category}
+              {(listing as any).categories?.name_ar || listing.category}
            </div>
         </div>
       </Link>
@@ -107,7 +118,7 @@ export function ListingCard({ listing }: ListingCardProps) {
             <Scale className="w-5 h-5 text-on-surface-variant/40" />
             <div className="space-y-0.5">
                <span className="text-[8px] font-black text-on-surface-variant/30 uppercase block">الكمية</span>
-               <p className="text-sm font-black text-on-surface">{listing.quantity} {listing.unit}</p>
+               <p className="text-sm font-black text-on-surface">{listing.quantity} {(listing as any).units?.name_ar || listing.unit}</p>
             </div>
           </div>
           <div className="bg-surface-container-lowest p-3 rounded-2xl border border-outline-variant/30 flex items-center gap-3 group-hover:border-primary/20 transition-colors">

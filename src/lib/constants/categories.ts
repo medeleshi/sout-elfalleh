@@ -1,20 +1,44 @@
-import { Leaf, Grape, Beef, Milk, Sprout, Filter } from 'lucide-react';
+import { 
+  Leaf, 
+  Grape, 
+  Beef, 
+  Milk, 
+  Sprout, 
+  Wheat, 
+  Carrot, 
+  Flower, 
+  Trees, 
+  Bean, 
+  Droplets, 
+  Droplet, 
+  Package, 
+  Bird, 
+  Layers, 
+  Utensils, 
+  MoreHorizontal 
+} from 'lucide-react';
 
-export const CATEGORIES = [
-  { id: 'vegetables', label: 'خضروات', icon: Leaf },
-  { id: 'fruits', label: 'فواكه', icon: Grape },
-  { id: 'livestock', label: 'مواشي', icon: Beef },
-  { id: 'dairy', label: 'ألبان', icon: Milk },
-  { id: 'grains', label: 'حبوب', icon: Sprout },
-  { id: 'oils', label: 'زيوت', icon: Leaf }, // Reuse icon or add more
-];
-
-export const UNITS = [
-  { id: 'kg', label: 'كيلوغرام (كغ)' },
-  { id: 'ton', label: 'طن' },
-  { id: 'liter', label: 'لتر' },
-  { id: 'bag', label: 'كيس' },
-  { id: 'box', label: 'صندوق' },
-  { id: 'piece', label: 'قطعة' },
-  { id: 'crate', label: 'قفص' },
-];
+/**
+ * Mapping of Category Slugs to Lucide Icons.
+ * Used for dynamic resolution of database-backed categories.
+ */
+export const CATEGORY_ICONS: Record<string, any> = {
+  'vegetables': Leaf,
+  'fruits': Grape,
+  'cereals_grains': Wheat,
+  'legumes': Bean,
+  'roots_tubers': Carrot,
+  'herbs_spices': Sprout,
+  'seeds_seedlings': Sprout,
+  'industrial_oil_crops': Droplets,
+  'oils_fats': Droplet,
+  'fodder_feed': Trees,
+  'fibers_hides': Layers,
+  'flowers_horticulture': Flower,
+  'honey_beekeeping': Package,
+  'livestock': Beef,
+  'poultry': Bird,
+  'dairy_eggs': Milk,
+  'processed_farm_products': Utensils,
+  'other': MoreHorizontal,
+};

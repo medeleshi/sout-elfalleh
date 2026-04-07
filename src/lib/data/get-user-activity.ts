@@ -47,7 +47,13 @@ export async function getUserListings(userId: string, publicOnly: boolean = fals
   const supabase = await createClient();
   let query = supabase
     .from('listings')
-    .select('*, listing_images(storage_path)')
+    .select(`
+      *,
+      listing_images(storage_path, is_primary, sort_order),
+      categories:category_id(name_ar),
+      units:unit_id(name_ar),
+      governorates:governorate_id(name_ar)
+    `)
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
 
@@ -59,8 +65,14 @@ export async function getUserListings(userId: string, publicOnly: boolean = fals
 
   const { data } = await query;
   return (data || []).map((l: any) => {
-    const storagePath = l.listing_images?.[0]?.storage_path;
-    const imageUrl = storagePath 
+    // Sort images: primary first, then by sort_order
+    const sortedImages = [...(l.listing_images || [])].sort((a: any, b: any) => {
+      if (a.is_primary) return -1;
+      if (b.is_primary) return 1;
+      return (a.sort_order || 0) - (b.sort_order || 0);
+    });
+    const storagePath = sortedImages[0]?.storage_path;
+    const imageUrl = storagePath
       ? supabase.storage.from('listings').getPublicUrl(storagePath).data.publicUrl
       : undefined;
 
@@ -70,11 +82,15 @@ export async function getUserListings(userId: string, publicOnly: boolean = fals
       status: l.status,
       createdAt: l.created_at,
       views: 0,
-      category: l.category,
+      category: l.categories?.name_ar || 'أخرى',
       price: l.price,
-      unit: l.unit,
+      unit: l.units?.name_ar || '',
       image: imageUrl,
-      listing_images: l.listing_images || []
+      listing_images: sortedImages,
+      // Relational joins for ListingCard compatibility
+      categories: l.categories,
+      units: l.units,
+      governorates: l.governorates,
     };
   });
 }
@@ -83,7 +99,11 @@ export async function getUserRequests(userId: string): Promise<ActivityRequest[]
   const supabase = await createClient();
   const { data } = await supabase
     .from('purchase_requests')
-    .select('id, title, status, created_at, category, budget, unit')
+    .select(`
+      id, title, status, created_at, budget,
+      categories:category_id(name_ar),
+      units:unit_id(name_ar)
+    `)
     .eq('user_id', userId)
     .neq('status', 'archived')
     .order('created_at', { ascending: false });
@@ -93,9 +113,9 @@ export async function getUserRequests(userId: string): Promise<ActivityRequest[]
     title: r.title,
     status: r.status,
     createdAt: r.created_at,
-    category: r.category,
+    category: r.categories?.name_ar || 'أخرى',
     budget: r.budget,
-    unit: r.unit,
+    unit: r.units?.name_ar || '',
   }));
 }
 
@@ -103,7 +123,10 @@ export async function getUserPosts(userId: string): Promise<ActivityPost[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from('posts')
-    .select('id, title, type, status, created_at, views_count, comments_count, likes_count, category')
+    .select(`
+      id, title, status, created_at, view_count,
+      categories:category_id(name_ar)
+    `)
     .eq('author_id', userId)
     .neq('status', 'archived')
     .order('created_at', { ascending: false });
@@ -111,13 +134,13 @@ export async function getUserPosts(userId: string): Promise<ActivityPost[]> {
   return (data || []).map((p: any) => ({
     id: p.id,
     title: p.title,
-    type: p.type,
+    type: (p as any).type || 'discussion',
     status: p.status,
     createdAt: p.created_at,
-    viewsCount: p.views_count,
-    commentsCount: p.comments_count,
-    likesCount: p.likes_count,
-    category: p.category,
+    viewsCount: p.view_count || 0,
+    commentsCount: 0, // Should be fetched or joined if needed
+    likesCount: 0,
+    category: p.categories?.name_ar || 'أخرى',
   }));
 }
 

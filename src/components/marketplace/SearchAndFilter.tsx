@@ -4,7 +4,13 @@ import React from 'react';
 import { Search, SlidersHorizontal } from 'lucide-react';
 import { FilterDrawer } from './FilterDrawer';
 
-export function SearchAndFilter() {
+interface SearchAndFilterProps {
+  categories: { id: string; name_ar: string }[];
+  governorates: { id: string; name_ar: string }[];
+  units: { id: string; name_ar: string }[];
+}
+
+export function SearchAndFilter({ categories, governorates, units }: SearchAndFilterProps) {
   const [isFiltersOpen, setIsFiltersOpen] = React.useState(false);
 
   return (
@@ -30,6 +36,9 @@ export function SearchAndFilter() {
       <FilterDrawer 
         isOpen={isFiltersOpen} 
         onClose={() => setIsFiltersOpen(false)} 
+        categories={categories}
+        governorates={governorates}
+        units={units}
       />
     </>
   );

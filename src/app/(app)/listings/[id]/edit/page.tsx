@@ -1,8 +1,9 @@
 import React from 'react';
-import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/lib/auth/actions';
 import { redirect, notFound } from 'next/navigation';
 import { EditListingForm } from '@/components/listings/EditListingForm';
+import { getCategories, getUnits, getGovernorates, getCategoryUnits } from '@/lib/data/lookups';
+import { createClient } from '@/lib/supabase/server';
 
 export default async function EditListingPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -30,17 +31,24 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
     redirect('/activity');
   }
 
-  // Fetch Governorates
-  const { data: governorates } = await (supabase
-    .from('governorates') as any)
-    .select('id, name_ar');
+  // Fetch Lookups
+  const [categories, units, governorates, categoryUnits] = await Promise.all([
+    getCategories(),
+    getUnits(),
+    getGovernorates(),
+    getCategoryUnits(),
+  ]);
 
   return (
     <div className="w-full pb-32 pt-6 px-4 lg:px-8" dir="rtl">
       <EditListingForm 
         listing={listing} 
-        governorates={governorates || []} 
+        categories={categories}
+        units={units}
+        governorates={governorates} 
+        categoryUnits={categoryUnits}
       />
     </div>
   );
+
 }

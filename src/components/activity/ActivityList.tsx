@@ -158,7 +158,14 @@ export async function ActivityList({ activeTab, userId }: ActivityListProps) {
     const { data: savedListings } = savedListingIds.length > 0
       ? await supabase
           .from('listings')
-          .select('*, profiles:user_id(full_name), listing_images(storage_path)')
+          .select(`
+            *,
+            profiles:user_id(full_name),
+            listing_images(storage_path, is_primary, sort_order),
+            categories:category_id(name_ar, slug),
+            units:unit_id(name_ar),
+            governorates:governorate_id(name_ar)
+          `)
           .in('id', savedListingIds)
       : { data: [] };
 

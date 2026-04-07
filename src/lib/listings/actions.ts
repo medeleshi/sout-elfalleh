@@ -22,34 +22,50 @@ export async function createListingAction(
   }
 
   const title = formData.get("title") as string;
-  const category = formData.get("category") as string;
-  const quantity = formData.get("quantity") as string;
-  const unit = formData.get("unit") as string;
-  const price = formData.get("price") as string;
+  const category_id = formData.get("category_id") as string;
+  const quantityRaw = formData.get("quantity") as string;
+  const unit_id = formData.get("unit_id") as string;
+  const priceRaw = formData.get("price") as string;
   const description = formData.get("description") as string;
-  const governorateId = formData.get("governorate_id") as string;
+  const governorate_id = formData.get("governorate_id") as string;
   
-  if (!title || !category || !quantity || !unit || !governorateId) {
-    return { error: "يرجى ملء جميع الحقول الإلزامية." };
+  // Strict Validation for Rebuilt Schema Required Fields
+  if (!title?.trim()) return { error: "يرجى إدخال عنوان الإعلان." };
+  if (!category_id) return { error: "يرجى اختيار تصنيف المنتج." };
+  if (!unit_id) return { error: "يرجى اختيار وحدة القياس." };
+  if (!governorate_id) return { error: "يرجى اختيار الولاية." };
+  
+  const quantity = parseFloat(quantityRaw);
+  if (isNaN(quantity) || quantity < 0) {
+    return { error: "يرجى إدخال كمية صحيحة (0 أو أكثر)." };
+  }
+
+  const price = priceRaw ? parseFloat(priceRaw) : null;
+  if (price !== null && (isNaN(price) || price < 0)) {
+    return { error: "يرجى إدخال سعر صحيح." };
   }
 
   try {
+    // Insert Listing Row using Rebuilt Schema Fields
     const { data, error } = await (supabase.from("listings") as any)
       .insert({
         user_id: user.id,
-        title,
-        category,
-        quantity: quantity ? parseFloat(quantity) : null,
-        unit: unit || null,
-        price: price ? parseFloat(price) : null,
+        title: title.trim(),
+        category_id,
+        quantity,
+        unit_id,
+        price,
         description,
-        governorate_id: governorateId || null,
-        status: 'active',
+        governorate_id,
+        status: 'active', // 'active' is a valid value for public.item_status enum
       })
       .select('id')
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('[CREATE_LISTING] Database error:', error);
+      throw new Error(`فشل في حفظ البيانات: ${error.message}`);
+    }
 
     // Handle Native File Uploads
     const imageFiles = formData.getAll("images") as File[];
@@ -110,15 +126,27 @@ export async function updateListingAction(
   }
 
   const title = formData.get("title") as string;
-  const category = formData.get("category") as string;
-  const quantity = formData.get("quantity") as string;
-  const unit = formData.get("unit") as string;
-  const price = formData.get("price") as string;
+  const category_id = formData.get("category_id") as string;
+  const quantityRaw = formData.get("quantity") as string;
+  const unit_id = formData.get("unit_id") as string;
+  const priceRaw = formData.get("price") as string;
   const description = formData.get("description") as string;
-  const governorateId = formData.get("governorate_id") as string;
+  const governorate_id = formData.get("governorate_id") as string;
   
-  if (!title || !category) {
-    return { error: "يرجى ملء جميع الحقول الإلزامية." };
+  // Strict Validation for Rebuilt Schema Required Fields
+  if (!title?.trim()) return { error: "الاسم الكامل للمنتج مطلوب." };
+  if (!category_id) return { error: "يرجى اختيار تصنيف المنتج." };
+  if (!unit_id) return { error: "يرجى اختيار وحدة القياس." };
+  if (!governorate_id) return { error: "يرجى اختيار الولاية." };
+  
+  const quantity = parseFloat(quantityRaw);
+  if (isNaN(quantity) || quantity < 0) {
+    return { error: "يرجى إدخال كمية صحيحة (0 أو أكثر)." };
+  }
+
+  const price = priceRaw ? parseFloat(priceRaw) : null;
+  if (price !== null && (isNaN(price) || price < 0)) {
+    return { error: "يرجى إدخال سعر صحيح." };
   }
 
   try {
@@ -127,19 +155,22 @@ export async function updateListingAction(
 
     const { error } = await (supabase.from("listings") as any)
       .update({
-        title,
-        category,
-        quantity: quantity ? parseFloat(quantity) : null,
-        unit: unit || null,
-        price: price ? parseFloat(price) : null,
+        title: title.trim(),
+        category_id,
+        quantity,
+        unit_id,
+        price,
         description,
-        governorate_id: governorateId || null,
+        governorate_id,
         updated_at: new Date().toISOString(),
       })
       .eq("id", listingId)
       .eq("user_id", user.id);
 
-    if (error) throw error;
+    if (error) {
+      console.error('[UPDATE_LISTING] Database error:', error);
+      throw new Error(`فشل في تحديث البيانات: ${error.message}`);
+    }
 
     // Handle new uploads alongside retained
     const imageFiles = formData.getAll("images") as File[];

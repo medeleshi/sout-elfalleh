@@ -38,8 +38,10 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
     .select(`
       *,
       profiles:user_id(full_name, avatar_url, role),
-      listing_images(storage_path),
-      governorates:governorate_id(name_ar)
+      listing_images(storage_path, is_primary, sort_order),
+      governorates:governorate_id(name_ar),
+      categories:category_id(name_ar, slug),
+      units:unit_id(name_ar)
     `)
     .eq('id', id)
     .single();
@@ -55,16 +57,27 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
     return notFound();
   }
 
+  // Sort Images: Primary first, then by sort_order
+  const sortedImages = (listing.listing_images || [])
+    .sort((a: any, b: any) => {
+      if (a.is_primary) return -1;
+      if (b.is_primary) return 1;
+      return (a.sort_order || 0) - (b.sort_order || 0);
+    })
+    .map((img: any) => img.storage_path);
+
   // 2. Fetch Similar Listings (Same Category, excluding current)
   const { data: similarListings } = await supabase
     .from('listings')
     .select(`
       *,
       profiles:user_id(full_name),
-      listing_images(storage_path),
-      governorates:governorate_id(name_ar)
+      listing_images(storage_path, is_primary, sort_order),
+      governorates:governorate_id(name_ar),
+      categories:category_id(name_ar, slug),
+      units:unit_id(name_ar)
     `)
-    .eq('category', listing.category)
+    .eq('category_id', listing.category_id)
     .neq('id', listing.id)
     .eq('status', 'active')
     .limit(4);
@@ -72,7 +85,7 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
   // 3. Fetch Matching Demand (Personalization)
   const matchingRequests = await getMatchingDemand(
     profileData?.user?.id || '',
-    listing.category,
+    listing.category_id,
     listing.governorate_id,
     3
   );
@@ -90,7 +103,7 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
              <span>السوق</span>
           </Link>
           <ChevronRight className="w-3 h-3 rotate-180" />
-          <span className="text-on-surface-variant/60">{listing.category}</span>
+          <span className="text-on-surface-variant/60">{listing.categories?.name_ar}</span>
           <ChevronRight className="w-3 h-3 rotate-180" />
           <span className="text-on-surface truncate max-w-[150px]">{listing.title}</span>
         </div>
@@ -104,7 +117,7 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
         <div className="lg:col-span-8 space-y-12">
           {/* 1. Image Gallery (Client Component) */}
           <ListingGallery 
-            images={listing.listing_images?.map((img: any) => img.storage_path) || []} 
+            images={sortedImages} 
             title={listing.title} 
             isFresh={isFresh} 
           />
@@ -127,7 +140,7 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
              <div className="bg-surface-container-lowest p-6 rounded-[2rem] border border-outline-variant/30 space-y-2 text-right">
                 <Scale className="w-5 h-5 text-primary mr-auto" />
                 <span className="text-[10px] font-black text-on-surface-variant/40 tracking-widest block">الكمية المتوفرة</span>
-                <p className="text-xl font-black text-on-surface">{listing.quantity} {listing.unit}</p>
+                <p className="text-xl font-black text-on-surface">{listing.quantity} {listing.units?.name_ar}</p>
              </div>
              <div className="bg-surface-container-lowest p-6 rounded-[2rem] border border-outline-variant/30 space-y-2 text-right">
                 <MapPin className="w-5 h-5 text-secondary mr-auto" />
@@ -145,7 +158,7 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
              <div className="bg-surface-container-lowest p-6 rounded-[2rem] border border-outline-variant/30 space-y-2 text-right">
                 <Star className="w-5 h-5 text-primary mr-auto" />
                 <span className="text-[10px] font-black text-on-surface-variant/40 tracking-widest block">التصنيف</span>
-                <p className="text-xl font-black text-on-surface">{listing.category}</p>
+                <p className="text-xl font-black text-on-surface">{listing.categories?.name_ar}</p>
              </div>
           </section>
         </div>
@@ -169,7 +182,7 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
             listingId={listing.id} 
             isOwner={isOwner} 
             price={listing.price} 
-            unit={listing.unit} 
+            unit={listing.units?.name_ar || ''} 
             isNegotiable={listing.is_price_negotiable}
           />
 
@@ -224,7 +237,7 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
                <div className="p-4 bg-white rounded-2xl shadow-sm text-outline-variant/50 group-hover:scale-110 transition-transform">
                   <ShoppingBag className="w-10 h-10" />
                </div>
-               <p className="text-sm font-black uppercase tracking-widest leading-relaxed">اكتشف المزيد من الخضروات<br/>في منطقتك</p>
+               <p className="text-sm font-black uppercase tracking-widest leading-relaxed">اكتشف المزيد من {listing.categories?.name_ar || 'العروض'}<br/>في منطقتك</p>
             </div>
          </div>
       </section>
