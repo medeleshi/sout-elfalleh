@@ -35,7 +35,7 @@ export default function SignupPage() {
         {/* Abstract Background Overlay */}
         <div className="absolute inset-0 z-0">
           <Image
-            src="/home/medeleshi/.gemini/antigravity/brain/8a18e89d-bdcb-47ef-b012-8f4275c7de2b/farmer_using_phone_tunisia_1774909396098.png"
+            src="/images/auth-farmer.png"
             alt="Agriculture background"
             fill
             className="object-cover opacity-30 grayscale-[0.2] contrast-[1.1]"

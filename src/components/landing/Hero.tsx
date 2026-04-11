@@ -62,7 +62,7 @@ export function Hero() {
           
           <div className="relative aspect-[4/5] md:aspect-square w-full rounded-[3rem] overflow-hidden shadow-[0_32px_64px_-16px_rgba(21,66,18,0.2)] border-8 border-white/50">
             <img 
-              src="/home/medeleshi/.gemini/antigravity/brain/8a18e89d-bdcb-47ef-b012-8f4275c7de2b/hero_agriculture_tunisia_1774909058376.png" 
+              src="/images/auth-hero.png" 
               alt="تجارة فلاحية في تونس" 
               className="w-full h-full object-cover transform scale-110 group-hover:scale-100 transition-transform duration-1000"
             />

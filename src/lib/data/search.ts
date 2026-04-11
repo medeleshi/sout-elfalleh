@@ -1,4 +1,3 @@
-// src/lib/data/search.ts
 import { createClient } from '@/lib/supabase/server';
 
 export interface SearchResults {
@@ -15,8 +14,9 @@ export async function searchAll(query: string, type: string): Promise<SearchResu
 
   const results: SearchResults = { listings: [], requests: [], profiles: [], posts: [] };
 
+  // ── Listings ──────────────────────────────────────────────────────────────
   if (isAll || type === 'listings') {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('listings')
       .select(`
         id, title, price, quantity, status, created_at,
@@ -30,74 +30,81 @@ export async function searchAll(query: string, type: string): Promise<SearchResu
       .order('created_at', { ascending: false })
       .limit(12);
 
-    results.listings = (data || []).map((l: any) => ({
+    if (error) console.error('[SEARCH] listings:', error.message);
+
+    results.listings = (data ?? []).map((l: any) => ({
       id: l.id,
       title: l.title,
-      category: l.categories?.name_ar || 'أخرى',
+      category: l.categories?.name_ar ?? 'أخرى',
       price: l.price,
       quantity: l.quantity,
-      unit: l.units?.name_ar || '',
-      location: l.governorates?.name_ar || 'تونس',
-      publisher: l.profiles?.full_name || 'عضو نشط',
-      isVerified: true,
+      unit: l.units?.name_ar ?? '',
+      location: l.governorates?.name_ar ?? 'تونس',
+      publisher: l.profiles?.full_name ?? 'عضو نشط',
       createdAt: l.created_at,
     }));
   }
 
+  // ── Purchase Requests ─────────────────────────────────────────────────────
   if (isAll || type === 'requests') {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('purchase_requests')
       .select(`
-        id, title, requested_quantity, budget, status, created_at,
+        id, title, quantity, budget, status, created_at,
         profiles:user_id(full_name),
         categories:category_id(name_ar),
         units:unit_id(name_ar),
         governorates:governorate_id(name_ar)
-      `)
+      `)                           // ← was 'requested_quantity' — column is 'quantity'
       .eq('status', 'active')
       .or(query ? `title.ilike.${term},description.ilike.${term}` : 'status.eq.active')
       .order('created_at', { ascending: false })
       .limit(12);
 
-    results.requests = (data || []).map((r: any) => ({
+    if (error) console.error('[SEARCH] requests:', error.message);
+
+    results.requests = (data ?? []).map((r: any) => ({
       id: r.id,
       title: r.title,
-      category: r.categories?.name_ar || 'أخرى',
-      quantity: r.requested_quantity,
-      unit: r.units?.name_ar || '',
+      category: r.categories?.name_ar ?? 'أخرى',
+      quantity: r.quantity,        // ← was r.requested_quantity
+      unit: r.units?.name_ar ?? '',
       budget: r.budget,
-      location: r.governorates?.name_ar || 'تونس',
-      publisher: r.profiles?.full_name || 'عضو نشط',
-      isVerified: true,
+      location: r.governorates?.name_ar ?? 'تونس',
+      publisher: r.profiles?.full_name ?? 'عضو نشط',
       createdAt: r.created_at,
     }));
   }
 
+  // ── Profiles ──────────────────────────────────────────────────────────────
   if (isAll || type === 'profiles') {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('profiles')
       .select(`
-        id, full_name, role, is_onboarding_completed,
+        id, full_name, role, avatar_url,
         governorates:governorate_id(name_ar)
       `)
       .eq('is_onboarding_completed', true)
       .ilike(query ? 'full_name' : 'role', query ? term : '%')
       .limit(8);
 
-    results.profiles = (data || []).map((p: any) => ({
+    if (error) console.error('[SEARCH] profiles:', error.message);
+
+    results.profiles = (data ?? []).map((p: any) => ({
       id: p.id,
       full_name: p.full_name,
+      avatar_url: p.avatar_url,
       role: p.role,
-      location: p.governorates?.name_ar || 'تونس',
-      isVerified: true,
+      location: p.governorates?.name_ar ?? 'تونس',
     }));
   }
 
+  // ── Posts ─────────────────────────────────────────────────────────────────
   if (isAll || type === 'posts') {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('posts')
       .select(`
-        id, title, content, status, created_at,
+        id, title, content, type, status, created_at,
         profiles:author_id(full_name),
         categories:category_id(name_ar)
       `)
@@ -106,14 +113,15 @@ export async function searchAll(query: string, type: string): Promise<SearchResu
       .order('created_at', { ascending: false })
       .limit(8);
 
-    results.posts = (data || []).map((p: any) => ({
+    if (error) console.error('[SEARCH] posts:', error.message);
+
+    results.posts = (data ?? []).map((p: any) => ({
       id: p.id,
       title: p.title,
       content: p.content,
-      type: (p as any).type || 'discussion',
-      author: p.profiles?.full_name || 'عضو نشط',
+      type: p.type ?? 'discussion',
+      author: p.profiles?.full_name ?? 'عضو نشط',
       createdAt: p.created_at,
-      repliesCount: (p as any).comments_count || 0,
     }));
   }
 

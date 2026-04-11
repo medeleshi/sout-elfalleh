@@ -32,7 +32,7 @@ function LoginContent() {
         {/* Abstract Background Overlay */}
         <div className="absolute inset-0 z-0">
           <Image
-            src="/home/medeleshi/.gemini/antigravity/brain/8a18e89d-bdcb-47ef-b012-8f4275c7de2b/trader_market_tunisia_1774909563939.png"
+            src="/images/auth-market.png"
             alt="Market background"
             fill
             className="object-cover opacity-30 grayscale-[0.2] contrast-[1.1]"

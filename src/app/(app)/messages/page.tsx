@@ -23,8 +23,8 @@ export default async function MessagesPage() {
       avatar: conv.otherParticipant?.avatar_url || null,
     },
     lastMessage: conv.lastMessage || 'ابدأ المحادثة...',
-    time: conv.lastMessageAt
-      ? new Date(conv.lastMessageAt).toLocaleTimeString('ar-TN', { hour: '2-digit', minute: '2-digit' })
+    time: conv.lastMessage
+      ? new Date(conv.createdAt).toLocaleTimeString('ar-TN', { hour: '2-digit', minute: '2-digit' })
       : '',
     unread: conv.unreadCount > 0,
     status: (conv.unreadCount > 0 ? 'new' : 'replied') as 'new' | 'replied',

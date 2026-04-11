@@ -183,7 +183,7 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
             isOwner={isOwner} 
             price={listing.price} 
             unit={listing.units?.name_ar || ''} 
-            isNegotiable={listing.is_price_negotiable}
+            isNegotiable={false}
           />
 
           {/* 4b. Owner Management (Client Component) */}

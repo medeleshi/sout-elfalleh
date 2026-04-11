@@ -46,7 +46,7 @@ export default function FeedCard({ item }: FeedCardProps) {
   }).format(Number(value)) : (isPost ? null : 'حسب الاتفاق');
 
   // Specific metadata
-  const quantity = isListing ? item.quantity : isRequest ? (item as any).requested_quantity : null;
+  const quantity = isListing ? item.quantity : isRequest ? (item as any).quantity : null;
   const unit = (item as any).unit || 'وحدة';
 
   return (

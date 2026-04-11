@@ -17,7 +17,7 @@ export default function ForgotPasswordPage() {
       <div className="hidden lg:flex lg:w-[40%] relative overflow-hidden bg-primary p-12 flex-col justify-between">
         <div className="absolute inset-0 z-0">
           <Image
-            src="/home/medeleshi/.gemini/antigravity/brain/8a18e89d-bdcb-47ef-b012-8f4275c7de2b/hero_agriculture_tunisia_1774909058376.png"
+            src="/images/auth-hero.png"
             alt="Agriculture"
             fill
             className="object-cover opacity-20 grayscale"
