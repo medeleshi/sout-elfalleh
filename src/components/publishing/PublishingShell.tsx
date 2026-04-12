@@ -11,6 +11,7 @@ interface PublishingShellProps {
   type: 'listing' | 'request' | 'post' | 'question';
   children: React.ReactNode;
   isSubmitting?: boolean;
+  submittingLabel?: string;
   onCancel?: () => void;
   primaryActionLabel?: string;
   onPrimaryAction?: () => void;
@@ -23,6 +24,7 @@ export function PublishingShell({
   type,
   children,
   isSubmitting,
+  submittingLabel,
   onCancel,
   primaryActionLabel,
   onPrimaryAction,
@@ -36,7 +38,7 @@ export function PublishingShell({
       <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-outline-variant/10 shadow-sm lg:shadow-none">
         <div className="max-w-4xl mx-auto px-4 h-16 lg:h-24 flex items-center justify-between">
           <div className="flex items-center gap-3 lg:gap-4">
-             <Link href="/marketplace" className="p-2.5 -mr-2 text-on-surface-variant/60 hover:text-primary transition-all active:scale-90 lg:hidden">
+             <Link href="/marketplace" className={`p-2.5 -mr-2 text-on-surface-variant/60 hover:text-primary transition-all active:scale-90 lg:hidden ${isSubmitting ? 'pointer-events-none opacity-50' : ''}`}>
                 <ArrowRight className="w-6 h-6 rotate-180" />
              </Link>
              <div className="space-y-0.5">
@@ -54,7 +56,7 @@ export function PublishingShell({
                 <span className="hidden sm:inline">دليل النشر</span>
              </button>
 
-             <Link href={ROUTES.HOME} className="hidden lg:flex items-center gap-2 px-4 py-2 bg-surface-container-low rounded-xl text-on-surface-variant/60 font-black text-[10px] uppercase tracking-widest hover:text-primary transition-all">
+             <Link href={ROUTES.HOME} className={`hidden lg:flex items-center gap-2 px-4 py-2 bg-surface-container-low rounded-xl text-on-surface-variant/60 font-black text-[10px] uppercase tracking-widest hover:text-primary transition-all ${isSubmitting ? 'pointer-events-none opacity-50' : ''}`}>
                 <Home className="w-4 h-4" />
                 <span>العودة للرئيسية</span>
              </Link>
@@ -79,7 +81,7 @@ export function PublishingShell({
                     يمكنك التبديل بين إنشاء إعلان للبيع، طرح سؤال ومشاركة في المجتمع، أو إنشاء طلب شراء.
                  </p>
               </div>
-              <div className="flex bg-white/50 backdrop-blur p-1.5 rounded-2xl border border-outline-variant/10 shadow-sm self-start lg:self-center">
+              <div className={`flex bg-white/50 backdrop-blur p-1.5 rounded-2xl border border-outline-variant/10 shadow-sm self-start lg:self-center ${isSubmitting ? 'pointer-events-none opacity-50' : ''}`}>
                  <Link href="/listings/new" className={`px-4 sm:px-6 py-2.5 rounded-xl text-[10px] sm:text-[11px] lg:text-xs font-black uppercase tracking-widest transition-all ${type === 'listing' ? 'bg-primary text-on-primary shadow-lg shadow-primary/20 scale-[1.02]' : 'text-on-surface-variant/40 hover:text-primary'}`}>
                     عرض بيع
                  </Link>
@@ -119,7 +121,7 @@ export function PublishingShell({
                onClick={onPrimaryAction}
             >
                <span className="relative z-10 flex items-center justify-center gap-3">
-                  {isSubmitting ? 'جاري الحفظ...' : (
+                  {isSubmitting ? (submittingLabel || 'جاري الحفظ...') : (
                     <>
                        <span>{primaryActionLabel || `نشر ${type === 'listing' ? 'العرض' : type === 'request' ? 'الطلب' : type === 'question' ? 'السؤال' : 'المنشور'} الآن`}</span>
                        <PlusCircle className="w-5 h-5 lg:w-6 lg:h-6 group-hover:rotate-90 transition-transform duration-500" />

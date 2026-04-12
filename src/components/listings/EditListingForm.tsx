@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useTransition } from 'react';
+import React, { useState, useRef, useTransition, useEffect } from 'react';
 import { PublishingShell } from '@/components/publishing/PublishingShell';
 import { FormField } from '@/components/publishing/FormField';
 import { ImagePicker } from '@/components/publishing/ImagePicker';
@@ -45,6 +45,20 @@ export function EditListingForm({ listing, categories, units, governorates, cate
   // Fallback: if selected category has no units mapped, show all units to prevent broken UX
   const displayUnits = (formData.category_id && filteredUnits.length === 0) ? units : filteredUnits;
 
+  // Prevent tab-close / refresh from interrupting an active upload
+  useEffect(() => {
+    const isActive = isSubmitting || isPending;
+    if (!isActive) return;
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isSubmitting, isPending]);
+
   const handleAction = async (fd: FormData) => {
     setIsSubmitting(true);
     setError(null);
@@ -63,6 +77,8 @@ export function EditListingForm({ listing, categories, units, governorates, cate
   };
 
   const handleSave = () => {
+    // Guard against concurrent submissions from other handlers (delete, status update)
+    if (isSubmitting || isPending) return;
     if (formRef.current) {
       startTransition(() => {
         formRef.current?.requestSubmit();
@@ -252,7 +268,7 @@ export function EditListingForm({ listing, categories, units, governorates, cate
           </div>
           
           <FormField label="أضف صوراً واقعية للمحصول" hint="الصور في ضوء النهار الطبيعي تبني ثقة فورية مع المشترين.">
-            <ImagePicker existingImages={formData.listing_images} />
+            <ImagePicker existingImages={formData.listing_images} presetName="listing" />
           </FormField>
         </div>
 

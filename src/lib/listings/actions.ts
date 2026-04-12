@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { getCurrentUser } from '@/lib/auth/actions';
+import { validateUpload } from '@/lib/uploads/validate-files';
 
 export type ListingState = {
   success?: boolean;
@@ -45,6 +46,14 @@ export async function createListingAction(
     return { error: "يرجى إدخال سعر صحيح." };
   }
 
+  // Multi-Image Validation
+  const rawImageFiles = formData.getAll("images") as File[];
+  const imageValidation = validateUpload(rawImageFiles, "listing");
+  if (!imageValidation.valid) {
+    return { error: imageValidation.error };
+  }
+  const validFiles = imageValidation.files;
+
   try {
     // Insert Listing Row using Rebuilt Schema Fields
     const { data, error } = await (supabase.from("listings") as any)
@@ -67,41 +76,45 @@ export async function createListingAction(
       throw new Error(`فشل في حفظ البيانات: ${error.message}`);
     }
 
-    // Handle Native File Uploads
-    const imageFiles = formData.getAll("images") as File[];
-    const validFiles = imageFiles.filter(f => f && f.size > 0 && f.type.startsWith('image/'));
-    const uploadedPaths: string[] = [];
+    try {
+      // Execute Storage Uploads using Validated Array
+      const uploadedPaths: string[] = [];
 
-    for (const file of validFiles) {
-      const ext = file.name.split('.').pop() || 'jpg';
-      const uniqueName = `${data.id}/${Date.now()}-${Math.random().toString(36).substr(2, 5)}.${ext}`;
-      
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('listings')
-        .upload(uniqueName, file);
-      
-      if (uploadError) {
-        console.error(`[CREATE_LISTING] Storage upload error for file ${file.name}:`, uploadError);
-        throw new Error(`تعذر رفع الصور إلى المخزن: ${uploadError.message}`);
+      for (const file of validFiles) {
+        const ext = file.name.split('.').pop() || 'jpg';
+        const uniqueName = `${data.id}/${Date.now()}-${Math.random().toString(36).substr(2, 5)}.${ext}`;
+        
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('listings')
+          .upload(uniqueName, file);
+        
+        if (uploadError) {
+          console.error(`[CREATE_LISTING] Storage upload error for file ${file.name}:`, uploadError);
+          throw new Error(`تعذر رفع الصور إلى المخزن: ${uploadError.message}`);
+        }
+        if (uploadData?.path) {
+          uploadedPaths.push(uploadData.path);
+        }
       }
-      if (uploadData?.path) {
-        uploadedPaths.push(uploadData.path);
+
+      if (uploadedPaths.length > 0) {
+        const imagesToInsert = uploadedPaths.map((path, index) => ({
+          listing_id: data.id,
+          storage_path: path, 
+          is_primary: index === 0,
+          sort_order: index
+        }));
+
+        const { error: imageError } = await (supabase
+          .from('listing_images') as any)
+          .insert(imagesToInsert);
+
+        if (imageError) throw imageError;
       }
-    }
-
-    if (uploadedPaths.length > 0) {
-      const imagesToInsert = uploadedPaths.map((path, index) => ({
-        listing_id: data.id,
-        storage_path: path, 
-        is_primary: index === 0,
-        sort_order: index
-      }));
-
-      const { error: imageError } = await (supabase
-        .from('listing_images') as any)
-        .insert(imagesToInsert);
-
-      if (imageError) throw imageError;
+    } catch (uploadOrInsertError: any) {
+      // ROLLBACK the listing creation to prevent orphaned item duplication
+      await (supabase.from('listings') as any).delete().eq('id', data.id);
+      throw uploadOrInsertError;
     }
 
     revalidatePath("/marketplace");
@@ -149,9 +162,26 @@ export async function updateListingAction(
     return { error: "يرجى إدخال سعر صحيح." };
   }
 
+  // Multi-Image Validation for update
+  const rawImageFiles = formData.getAll("images") as File[];
+  const imageValidation = validateUpload(rawImageFiles, "listing");
+  if (!imageValidation.valid) {
+    return { error: imageValidation.error };
+  }
+  const validFiles = imageValidation.files;
+
   try {
     const retainedRaw = formData.get("retained_images");
-    const retained_images = JSON.parse((retainedRaw as string) || "[]");
+    const retained_images: string[] = JSON.parse((retainedRaw as string) || "[]");
+
+    // Fetch current image paths before mutating anything
+    const { data: currentImages } = await (supabase.from('listing_images') as any)
+      .select('storage_path')
+      .eq('listing_id', listingId);
+    const currentPaths: string[] = (currentImages || []).map((img: any) => img.storage_path);
+
+    // Identify paths removed by the user (in DB but not in retained)
+    const removedPaths = currentPaths.filter(p => !retained_images.includes(p));
 
     const { error } = await (supabase.from("listings") as any)
       .update({
@@ -172,42 +202,66 @@ export async function updateListingAction(
       throw new Error(`فشل في تحديث البيانات: ${error.message}`);
     }
 
-    // Handle new uploads alongside retained
-    const imageFiles = formData.getAll("images") as File[];
-    const validFiles = imageFiles.filter(f => f && f.size > 0 && f.type.startsWith('image/'));
+    // Upload new files then rebuild the listing_images table
     const newUploadedPaths: string[] = [];
 
-    for (const file of validFiles) {
-      const ext = file.name.split('.').pop() || 'jpg';
-      const uniqueName = `${listingId}/${Date.now()}-${Math.random().toString(36).substr(2, 5)}.${ext}`;
-      
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('listings')
-        .upload(uniqueName, file);
-      
-      if (uploadError) {
-        console.error(`[UPDATE_LISTING] Storage upload error for file ${file.name}:`, uploadError);
-        throw new Error(`تعذر رفع الصور الجديدة إلى المخزن: ${uploadError.message}`);
+    try {
+      for (const file of validFiles) {
+        const ext = file.name.split('.').pop() || 'jpg';
+        const uniqueName = `${listingId}/${Date.now()}-${Math.random().toString(36).substr(2, 5)}.${ext}`;
+        
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('listings')
+          .upload(uniqueName, file);
+        
+        if (uploadError) {
+          console.error(`[UPDATE_LISTING] Storage upload error for file ${file.name}:`, uploadError);
+          throw new Error(`تعذر رفع الصور الجديدة إلى المخزن: ${uploadError.message}`);
+        }
+        if (uploadData?.path) {
+          newUploadedPaths.push(uploadData.path);
+        }
       }
-      if (uploadData?.path) {
-        newUploadedPaths.push(uploadData.path);
-      }
-    }
 
-    const finalPaths = [...retained_images, ...newUploadedPaths];
+      const finalPaths = [...retained_images, ...newUploadedPaths];
 
-    // Wipe old explicitly and insert full final array
-    await (supabase.from('listing_images') as any).delete().eq('listing_id', listingId);
-    
-    if (finalPaths.length > 0) {
-      const imagesToInsert = finalPaths.map((path: string, index: number) => ({
-        listing_id: listingId,
-        storage_path: path,
-        is_primary: index === 0,
-        sort_order: index
-      }));
+      // Wipe old DB rows and reinsert the full final set
+      await (supabase.from('listing_images') as any).delete().eq('listing_id', listingId);
       
-      await (supabase.from('listing_images') as any).insert(imagesToInsert);
+      if (finalPaths.length > 0) {
+        const imagesToInsert = finalPaths.map((path: string, index: number) => ({
+          listing_id: listingId,
+          storage_path: path,
+          is_primary: index === 0,
+          sort_order: index
+        }));
+        await (supabase.from('listing_images') as any).insert(imagesToInsert);
+      }
+
+      // Only delete removed files from storage AFTER DB is committed successfully
+      if (removedPaths.length > 0) {
+        const { error: storageDeleteError } = await supabase.storage
+          .from('listings')
+          .remove(removedPaths);
+        if (storageDeleteError) {
+          // Non-fatal: log but do not fail the whole update
+          console.warn('[UPDATE_LISTING] Storage cleanup partial failure:', storageDeleteError);
+        }
+      }
+
+    } catch (uploadOrInsertError: any) {
+      // ROLLBACK: restore listing_images to the pre-update snapshot
+      await (supabase.from('listing_images') as any).delete().eq('listing_id', listingId);
+      if (currentPaths.length > 0) {
+        const restoredImages = currentPaths.map((path, index) => ({
+          listing_id: listingId,
+          storage_path: path,
+          is_primary: index === 0,
+          sort_order: index
+        }));
+        await (supabase.from('listing_images') as any).insert(restoredImages);
+      }
+      throw uploadOrInsertError;
     }
 
     revalidatePath("/activity");

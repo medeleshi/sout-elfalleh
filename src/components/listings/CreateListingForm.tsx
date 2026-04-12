@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useTransition, useState } from 'react';
+import React, { useRef, useTransition, useState, useEffect } from 'react';
 import { PublishingShell } from '@/components/publishing/PublishingShell';
 import { FormField } from '@/components/publishing/FormField';
 import { ImagePicker } from '@/components/publishing/ImagePicker';
@@ -30,6 +30,19 @@ export function CreateListingForm({ categories, units, governorates, categoryUni
   // Fallback: if selected category has no units mapped, show all units to prevent broken UX
   const displayUnits = (selectedCategoryId && filteredUnits.length === 0) ? units : filteredUnits;
 
+  // Prevent catastrophic runtime navigations or tab closing while an active network payload is uploading
+  useEffect(() => {
+    if (!isPending) return;
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = ''; // Required for legacy browsers to show confirmation dialog
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isPending]);
+
   const handleAction = async (formData: FormData) => {
     setError(null);
     const result = await createListingAction(formData);
@@ -48,8 +61,9 @@ export function CreateListingForm({ categories, units, governorates, categoryUni
         type="listing"
         onCancel={() => window.history.back()}
         isSubmitting={isPending}
+        submittingLabel="جاري الحفظ ورفع الصور..."
         onPrimaryAction={() => {
-          if (formRef.current) {
+          if (formRef.current && !isPending) {
             startTransition(() => {
               formRef.current?.requestSubmit();
             });
@@ -136,7 +150,7 @@ export function CreateListingForm({ categories, units, governorates, categoryUni
         </div>
         
         <FormField label="أضف صوراً واقعية للمحصول" hint="الصور في ضوء النهار الطبيعي تبني ثقة فورية مع المشترين.">
-          <ImagePicker />
+          <ImagePicker presetName="listing" />
         </FormField>
       </div>
 

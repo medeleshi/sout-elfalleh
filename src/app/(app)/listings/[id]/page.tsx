@@ -15,7 +15,6 @@ import {
 import Link from 'next/link';
 import { ListingCard } from '@/components/marketplace/ListingCard';
 import { RequestCard } from '@/components/marketplace/RequestCard';
-
 import { createClient } from '@/lib/supabase/server';
 import { getMatchingDemand } from '@/lib/data/get-matching-demand';
 import { notFound } from 'next/navigation';
@@ -26,6 +25,7 @@ import { ListingGallery } from '@/components/marketplace/ListingGallery';
 import { ListingActions } from '@/components/marketplace/ListingActions';
 import { OwnerCard } from '@/components/marketplace/OwnerCard';
 import { OwnerManagement } from '@/components/marketplace/OwnerManagement';
+import { MobileContactBar } from '@/components/marketplace/MobileContactBar';
 
 export default async function ListingDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -168,8 +168,6 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
           {/* 2. Listing Core Info */}
           <section className="space-y-4 text-right">
              <div className="flex items-center justify-end gap-3 text-on-surface-variant/40 text-[10px] font-black uppercase tracking-widest">
-                <span>المُشاهدات: {Math.floor(Math.random() * 200)}</span>
-                <span>•</span>
                 <span>نُشر {new Date(listing.created_at).toLocaleDateString('ar-TN')}</span>
              </div>
              <h1 className="text-3xl lg:text-4xl font-black text-on-surface font-serif italic leading-tight">
@@ -180,7 +178,8 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
           {/* 6. Action Area (Client Component) */}
           <ListingActions 
             listingId={listing.id} 
-            isOwner={isOwner} 
+            isOwner={isOwner}
+            ownerId={listing.user_id}
             price={listing.price} 
             unit={listing.units?.name_ar || ''} 
             isNegotiable={false}
@@ -244,14 +243,7 @@ export default async function ListingDetailsPage({ params }: { params: Promise<{
       
       {/* Mobile Persistent Action Bar (PRD: High Intent) */}
       {!isOwner && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-xl border-t border-outline-variant/20 z-[60] lg:hidden flex gap-4 shadow-[0_-8px_30px_rgb(0,0,0,0.08)]">
-           <Button className="flex-1 h-16 rounded-2xl font-black text-lg shadow-2xl shadow-primary/30 flex items-center justify-center gap-3">
-             <span>تواصل مع الفلاح</span>
-           </Button>
-           <Button variant="outline" className="w-16 h-16 rounded-2xl border-2 border-primary/20 p-0 flex items-center justify-center bg-white">
-              <Phone className="w-6 h-6 text-primary" />
-           </Button>
-        </div>
+        <MobileContactBar ownerId={listing.user_id} />
       )}
     </div>
   );

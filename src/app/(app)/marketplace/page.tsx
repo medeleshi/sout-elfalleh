@@ -67,7 +67,7 @@ export default async function MarketplacePage({
 
   // Filter for nearby
   const nearbyItems = userGovernorateId ? marketplaceItems.filter(item => 
-    item.governorate_id === userGovernorateId
+    item.type !== 'post' && item.governorate_id === userGovernorateId
   ).slice(0, 3) : marketplaceItems.slice(0, 3);
 
   return (

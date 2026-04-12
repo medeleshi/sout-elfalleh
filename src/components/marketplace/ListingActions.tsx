@@ -9,16 +9,19 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 interface ListingActionsProps {
   listingId: string;
   isOwner: boolean;
+  ownerId: string;
   price: string;
   unit: string;
   isNegotiable?: boolean;
 }
 
-export function ListingActions({ listingId, isOwner, price, unit, isNegotiable }: ListingActionsProps) {
+export function ListingActions({ listingId, isOwner, ownerId, price, unit, isNegotiable }: ListingActionsProps) {
+  const router = useRouter();
   const [isSaved, setIsSaved] = useState(false);
   const [isReported, setIsReported] = useState(false);
 
@@ -38,17 +41,30 @@ export function ListingActions({ listingId, isOwner, price, unit, isNegotiable }
           <h3 className="text-sm font-black text-primary uppercase tracking-widest italic mr-auto">هل أنت مهتم؟</h3>
         </div>
         <div className="flex items-baseline justify-end gap-2 pt-2">
-          <p className="text-4xl font-black text-primary font-serif italic">{price}</p>
-          <p className="text-sm font-black text-on-surface-variant/60">د.ت / {unit}</p>
+          {price != null && price !== '' ? (
+            <>
+              <p className="text-4xl font-black text-primary font-serif italic">{price}</p>
+              <p className="text-sm font-black text-on-surface-variant/60">د.ت / {unit}</p>
+            </>
+          ) : (
+            <p className="text-2xl font-black text-primary font-serif italic">للتفاوض</p>
+          )}
         </div>
       </div>
 
       <div className="flex flex-col gap-3 relative z-10 mt-6">
-        <Button className="h-16 rounded-2xl font-black text-xl shadow-2xl shadow-primary/30 flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all">
+        <Button 
+          className="h-16 rounded-2xl font-black text-xl shadow-2xl shadow-primary/30 flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all"
+          onClick={() => router.push(`/messages?recipientId=${ownerId}`)}
+        >
           <MessageCircle className="w-6 h-6 rotate-180" />
           <span>بدء محادثة فورية</span>
         </Button>
-        <Button variant="outline" className="h-16 rounded-2xl font-black text-xl border-2 border-primary/20 text-primary hover:bg-primary/5 flex items-center justify-center gap-3">
+        <Button 
+          variant="outline" 
+          className="h-16 rounded-2xl font-black text-xl border-2 border-primary/20 text-primary hover:bg-primary/5 flex items-center justify-center gap-3"
+          onClick={() => router.push(`/messages?recipientId=${ownerId}`)}
+        >
           <Phone className="w-6 h-6" />
           <span>اتصال مباشر</span>
         </Button>

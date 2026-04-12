@@ -2,11 +2,11 @@ import { type NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
 
 /**
- * Next.js Middleware — handles Supabase session refresh and route protection.
- * This file MUST be named middleware.ts and live at src/middleware.ts (or root).
- * The exported function MUST be named `middleware`.
+ * Next.js Proxy (formerly Middleware) — handles Supabase session refresh and route protection.
+ * In Next.js 16.2+, this file MUST be named proxy.ts and live at src/proxy.ts (or root).
+ * The exported function MUST be named `proxy`.
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   return await updateSession(request);
 }
 

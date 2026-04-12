@@ -9,12 +9,13 @@ import { ActionPrompts } from '@/components/activity/ActionPrompts';
 export default async function ActivityPage({
   searchParams,
 }: {
-  searchParams: { tab?: string };
+  searchParams: Promise<{ tab?: string }>;
 }) {
   const profileData = await getCurrentProfile();
   if (!profileData || !profileData.profile) return null;
 
-  const activeTab = searchParams.tab || 'listings';
+  const { tab } = await searchParams;
+  const activeTab = tab || 'listings';
 
   return (
     <div className="w-full max-w-7xl mx-auto space-y-8 pb-32 pt-4 px-4 lg:px-8" dir="rtl">

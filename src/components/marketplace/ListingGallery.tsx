@@ -46,8 +46,18 @@ export function ListingGallery({ images, title, isFresh }: ListingGalleryProps) 
         <img 
           src={getImageUrl(images[currentIndex])} 
           className="w-full h-full object-cover transition-all duration-700 hover:scale-[1.02]" 
-          alt={`${title} - ${currentIndex + 1}`} 
+          alt={`${title} - ${currentIndex + 1}`}
+          onError={(e) => {
+            const target = e.currentTarget;
+            target.style.display = 'none';
+            const fallback = target.nextElementSibling as HTMLElement | null;
+            if (fallback) fallback.style.display = 'flex';
+          }}
         />
+        <div className="w-full h-full hidden flex-col items-center justify-center gap-3 bg-surface-container-low text-on-surface-variant/30">
+          <Tag className="w-12 h-12" />
+          <span className="text-xs font-black uppercase tracking-widest">تعذر تحميل الصورة</span>
+        </div>
         
         {/* Navigation Arrows */}
         {images.length > 1 && (
@@ -69,13 +79,16 @@ export function ListingGallery({ images, title, isFresh }: ListingGalleryProps) 
       </div>
       
       {/* Gallery Controls Overlay */}
-      <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between pointer-events-none">
+      <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between">
         <div className="flex gap-2">
           {images.map((_, i) => (
-            <div 
-              key={i} 
+            <button 
+              key={i}
+              type="button"
+              onClick={() => setCurrentIndex(i)}
+              aria-label={`الصورة ${i + 1}`}
               className={`h-1.5 rounded-full transition-all duration-300 ${
-                i === currentIndex ? 'w-8 bg-white' : 'w-2 bg-white/40'
+                i === currentIndex ? 'w-8 bg-white' : 'w-2 bg-white/40 hover:bg-white/70'
               }`} 
             />
           ))}

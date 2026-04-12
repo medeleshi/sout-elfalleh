@@ -22,6 +22,19 @@ interface OwnerCardProps {
 export function OwnerCard({ owner, ownerId }: OwnerCardProps) {
   const [isFollowing, setIsFollowing] = useState(false);
 
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'عرض على سوت الفلاح', url });
+      } catch {
+        // User cancelled share
+      }
+    } else {
+      await navigator.clipboard.writeText(url);
+    }
+  };
+
   return (
     <section className="bg-white p-8 rounded-[3rem] border-2 border-outline-variant/30 space-y-6 group">
       <div className="flex items-start justify-between">
@@ -38,7 +51,7 @@ export function OwnerCard({ owner, ownerId }: OwnerCardProps) {
             <p className="text-xs font-black text-on-surface-variant/40 uppercase tracking-widest italic">{owner.role || 'عضو نشط'}</p>
           </div>
         </div>
-        <Button variant="ghost" className="p-2 h-12 w-12 rounded-2xl border-2 border-primary/5 text-primary hover:bg-primary/5">
+        <Button variant="ghost" className="p-2 h-12 w-12 rounded-2xl border-2 border-primary/5 text-primary hover:bg-primary/5" onClick={handleShare}>
           <Share2 className="w-5 h-5" />
         </Button>
       </div>

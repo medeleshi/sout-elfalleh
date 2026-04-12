@@ -32,7 +32,9 @@ export default function FeedCard({ item }: FeedCardProps) {
       : `/posts/${item.id}`;
   
   // Metadata extraction
-  const governorate = item.governorates?.name_ar || 'المجتمع العام';
+  const governorate = !isPost && (item as any).governorates?.name_ar 
+    ? (item as any).governorates.name_ar 
+    : 'المجتمع العام';
   const timeAgo = formatDistanceToNow(new Date(item.created_at), { 
     addSuffix: true, 
     locale: ar 

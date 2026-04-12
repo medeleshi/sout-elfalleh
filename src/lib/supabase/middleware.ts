@@ -63,12 +63,22 @@ export async function updateSession(request: NextRequest) {
   const isAuthRoute =
     path.startsWith(ROUTES.LOGIN) || path.startsWith(ROUTES.SIGNUP);
 
+  // ── Redirect helper ───────────────────────────────────────────────────────
+  // Preserves cookies set by the Supabase client when returning a redirect.
+  const safeRedirect = (url: URL) => {
+    const response = NextResponse.redirect(url);
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      response.cookies.set(cookie.name, cookie.value, cookie);
+    });
+    return response;
+  };
+
   // ── Guard: unauthenticated ────────────────────────────────────────────────
 
   if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone();
     url.pathname = ROUTES.LOGIN;
-    return NextResponse.redirect(url);
+    return safeRedirect(url);
   }
 
   // ── Guard: authenticated ──────────────────────────────────────────────────
@@ -81,27 +91,27 @@ export async function updateSession(request: NextRequest) {
       .eq('id', user.id)
       .maybeSingle();
 
-    const onboardingDone = profile?.is_onboarding_completed ?? false;
+    const onboardingDone = (profile as { is_onboarding_completed: boolean } | null)?.is_onboarding_completed ?? false;
 
-    // Kick logged-in users off auth pages.
-    if (isAuthRoute) {
+    // Kick logged-in users off landing page or auth pages.
+    if (path === ROUTES.LANDING || isAuthRoute) {
       const url = request.nextUrl.clone();
       url.pathname = onboardingDone ? ROUTES.HOME : ROUTES.ONBOARDING;
-      return NextResponse.redirect(url);
+      return safeRedirect(url);
     }
 
     // Force incomplete users to onboarding — but don't loop on /onboarding itself.
     if (!onboardingDone && path !== ROUTES.ONBOARDING && !isPublicRoute) {
       const url = request.nextUrl.clone();
       url.pathname = ROUTES.ONBOARDING;
-      return NextResponse.redirect(url);
+      return safeRedirect(url);
     }
 
     // Don't let completed users revisit onboarding.
     if (onboardingDone && path === ROUTES.ONBOARDING) {
       const url = request.nextUrl.clone();
       url.pathname = ROUTES.HOME;
-      return NextResponse.redirect(url);
+      return safeRedirect(url);
     }
   }
 

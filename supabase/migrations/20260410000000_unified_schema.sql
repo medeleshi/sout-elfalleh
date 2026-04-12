@@ -43,6 +43,16 @@ drop type if exists public.unit_type cascade;
 drop function if exists public.set_updated_at() cascade;
 drop function if exists public.handle_new_user() cascade;
 
+-- Storage policies cleanup
+drop policy if exists "Public Read Listings Storage" on storage.objects;
+drop policy if exists "Auth Users Upload Listings Storage" on storage.objects;
+drop policy if exists "Auth Users Update Listings Storage" on storage.objects;
+drop policy if exists "Auth Users Delete Listings Storage" on storage.objects;
+drop policy if exists "Public Read Avatars Storage" on storage.objects;
+drop policy if exists "Auth Users Upload Avatars Storage" on storage.objects;
+drop policy if exists "Auth Users Update Avatars Storage" on storage.objects;
+drop policy if exists "Auth Users Delete Avatars Storage" on storage.objects;
+
 -- ============================================================
 -- 1. ENUMS
 -- ============================================================

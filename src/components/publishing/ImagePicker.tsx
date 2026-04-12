@@ -1,16 +1,20 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Plus, Image as ImageIcon } from 'lucide-react';
+import { X, Plus, Image as ImageIcon, AlertCircle } from 'lucide-react';
+import { validateUpload } from '@/lib/uploads/validate-files';
+import { UPLOAD_PRESETS } from '@/lib/uploads/presets';
 
 interface ImagePickerProps {
   existingImages?: string[];
   onChange?: (files: File[]) => void;
   onRemoveExisting?: (index: number) => void;
+  presetName?: keyof typeof UPLOAD_PRESETS;
 }
 
-export function ImagePicker({ existingImages = [], onChange, onRemoveExisting }: ImagePickerProps) {
-  const [previews, setPreviews] = useState<{ src: string, isFile: boolean }[]>([]);
+export function ImagePicker({ existingImages = [], onChange, onRemoveExisting, presetName = 'listing' }: ImagePickerProps) {
+  const [previews, setPreviews] = useState<{ src: string, isFile: boolean, file?: File }[]>([]);
+  const [localError, setLocalError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -18,40 +22,71 @@ export function ImagePicker({ existingImages = [], onChange, onRemoveExisting }:
     setPreviews(existingImages.map(src => ({ src, isFile: false })));
   }, [JSON.stringify(existingImages)]);
 
+  // Sync previews to the native input element so FormData accurately captures all files
+  const syncNativeInput = (currentPreviews: { isFile: boolean, file?: File }[]) => {
+    if (!fileInputRef.current) return;
+    const dt = new DataTransfer();
+    currentPreviews.forEach(p => {
+      if (p.isFile && p.file) {
+        dt.items.add(p.file);
+      }
+    });
+    fileInputRef.current.files = dt.files;
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalError(null);
     const files = e.target.files;
     if (!files) return;
     
-    // We append new previews to existing ones
     const newFiles = Array.from(files);
-    const newPreviews = newFiles.map(f => ({ src: URL.createObjectURL(f), isFile: true }));
+    
+    // Evaluate combined new files payload against the preset
+    const combinedFiles = [...previews.filter(p => p.isFile).map(p => p.file as File), ...newFiles];
+    const validation = validateUpload(combinedFiles, presetName);
+    
+    if (!validation.valid) {
+      setLocalError(validation.error || 'حدث خطأ في الملفات');
+      // Must detach the bad payload from the native input to prevent silent form pushes
+      syncNativeInput(previews); 
+      return;
+    }
+
+    const newPreviews = newFiles.map(f => ({ src: URL.createObjectURL(f), isFile: true, file: f }));
     
     setPreviews(prev => {
-      const combined = [...prev, ...newPreviews].slice(0, 5);
+      const combined = [...prev, ...newPreviews];
+      syncNativeInput(combined);
       return combined;
     });
 
     if (onChange) {
-      onChange(newFiles);
+      onChange(validation.files);
     }
   };
 
   const removeImage = (index: number) => {
     setPreviews(prev => {
       const target = prev[index];
-      // If it's an existing image being removed, notify parent
       if (!target.isFile && onRemoveExisting) {
         onRemoveExisting(index);
       }
-      return prev.filter((_, i) => i !== index);
+      const updated = prev.filter((_, i) => i !== index);
+      syncNativeInput(updated);
+      return updated;
     });
-    // Note: native file inputs cannot be easily spliced. In a minimal fix for new form data, 
-    // we assume the user will clear and reselect if they make a mistake midway, or we accept the limitation.
-    // For robust removal of *new* files, they'd clear the input. Here we just update previews.
   };
 
+  const maxAllowed = UPLOAD_PRESETS[presetName].maxFiles;
+
   return (
-    <div>
+    <div className="space-y-4">
+      {localError && (
+        <div className="bg-error/5 border border-error/20 rounded-xl p-3 flex items-center gap-2 text-error text-xs font-black">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          <span>{localError}</span>
+        </div>
+      )}
       <input 
         type="file" 
         name="images" 
@@ -81,7 +116,7 @@ export function ImagePicker({ existingImages = [], onChange, onRemoveExisting }:
             </button>
           </div>
         ))}
-        {previews.length < 5 && (
+        {previews.length < maxAllowed && (
           <button 
             type="button"
             onClick={() => fileInputRef.current?.click()}
